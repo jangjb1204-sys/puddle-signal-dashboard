@@ -572,6 +572,7 @@ def scan_batch(
     period: str,
     common_data: dict,
     stock_universe_map: dict[str, str] | None = None,
+    ticker_metadata: dict[str, dict] | None = None,
     progress_start: int = 0,
     progress_total: int | None = None,
 ) -> tuple[list[dict], bool]:
