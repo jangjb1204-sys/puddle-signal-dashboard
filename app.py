@@ -46,6 +46,9 @@ html, body, [class*="css"], .stApp {
 .status-dot { width:9px; height:9px; border-radius:999px; background:#63f29d; box-shadow:0 0 18px rgba(99,242,157,.42); }
 .updated { margin-top:2.1rem; color:#8e8e93; font-size:.76rem; font-weight:760; letter-spacing:.06em; text-transform:uppercase; }
 .updated strong { margin-left:8px; color:#b7bcc7; font-family:'DM Mono', monospace; font-weight:500; }
+.creator-mark { display:inline-flex; align-items:center; gap:8px; margin-top:.66rem; padding:7px 12px; border:1px solid rgba(190,220,255,0.18); border-radius:999px; background:linear-gradient(145deg, rgba(226,240,255,0.12), rgba(255,255,255,0.035)), rgba(9,29,52,0.42); color:rgba(220,238,255,0.86); font-family:'DM Mono', monospace; font-size:.73rem; font-weight:520; box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 28px rgba(0,0,0,0.10); text-decoration:none!important; transition:background .15s ease, border-color .15s ease, transform .15s ease; }
+.creator-mark::before { content:'by'; color:rgba(226,240,255,0.44); font-family:'DM Sans', sans-serif; font-size:.64rem; font-weight:650; }
+.creator-mark:hover { color:rgba(232,246,255,0.94); text-decoration:none!important; background:linear-gradient(145deg, rgba(232,246,255,0.16), rgba(255,255,255,0.045)), rgba(13,42,75,0.52); border-color:rgba(207,228,255,0.30); transform:translateY(-1px); }
 .top-stats { display:flex; align-items:center; gap:12px; color:#8e8e93; font-size:.82rem; margin-top:.35rem; white-space:nowrap; }
 .blue-dot { width:8px; height:8px; border-radius:999px; background:#2f70dc; box-shadow:0 0 16px rgba(47,112,220,.45); }
 .top-stats strong { color:#f5f5f7; }
@@ -88,10 +91,6 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
 .type-badge { color:#9fb6d9; font-size:.78rem; font-weight:720; }
 .puddle-text { color:#b7bcc7; max-width:330px; }
 .empty-note { color:#8e8e93; padding:1.2rem 0; }
-.creator-footer { display:flex; justify-content:center; margin:2.7rem 0 .4rem; }
-.creator-mark { display:inline-flex; align-items:center; gap:8px; padding:7px 12px; border:1px solid rgba(190,220,255,0.14); border-radius:999px; background:rgba(255,255,255,.028); color:rgba(220,238,255,0.72); font-family:'DM Mono', monospace; font-size:.73rem; font-weight:520; text-decoration:none!important; }
-.creator-mark::before { content:'by'; color:rgba(226,240,255,0.36); font-family:'DM Sans', sans-serif; font-size:.64rem; font-weight:650; }
-.creator-mark:hover { color:rgba(232,246,255,.94); border-color:rgba(207,228,255,.26); background:rgba(255,255,255,.045); transform:translateY(-1px); }
 @media (max-width:900px){ .block-container{padding:3.4rem 1.5rem 2.4rem!important;} .hero{display:block;} .top-stats{margin-top:1.2rem;} .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));} .title-wrap h1{font-size:2.45rem;} }
 @media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} .calendar-grid{gap:5px}.calendar-cell{min-height:39px;border-radius:12px;font-size:.76rem;} }
 </style>
@@ -235,6 +234,7 @@ def main() -> None:
       <div class='title-wrap'>
         <div class='title-row'><span class='status-dot'></span><h1>Puddle Signal Scanner</h1></div>
         <div class='updated'>UPDATED <strong>{scan_time}</strong></div>
+        <a class='creator-mark' href='{THREADS_URL}' target='_blank' rel='noopener'>30s_tech_j</a>
       </div>
       <div class='top-stats'><span class='blue-dot'></span><span>Selected <strong>{selected_date}</strong></span><span>·</span><span>Total <strong>{total}</strong></span></div>
     </div>
@@ -290,7 +290,6 @@ def main() -> None:
     st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Signal List</span></div>", unsafe_allow_html=True)
     st.markdown(render_signal_table(filtered), unsafe_allow_html=True)
     st.download_button("Download selected CSV", data=filtered.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
-    st.markdown(f"<div class='creator-footer'><a class='creator-mark' href='{THREADS_URL}' target='_blank' rel='noopener'>30s_tech_j</a></div>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
