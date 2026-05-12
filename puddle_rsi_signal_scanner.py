@@ -44,6 +44,7 @@ USER_AGENT = (
 )
 
 DEFAULT_STOCK_URL = "https://www.slickcharts.com/sp500"
+DEFAULT_NASDAQ100_URL = "https://en.wikipedia.org/wiki/Nasdaq-100"
 DEFAULT_ETF_URL = "https://etfdb.com/compare/market-cap/"
 YF_REQUEST_PAUSE_SECONDS = 3.0
 YF_RETRIES = 0
@@ -60,7 +61,6 @@ class YahooRateLimitError(RuntimeError):
 
 
 def normalize_ticker(ticker: str) -> str:
-    """Normalize symbols for yfinance."""
     clean = str(ticker).strip().upper()
     if not clean:
         return ""
@@ -92,7 +92,7 @@ def universe_cache_path() -> Path:
     return CACHE_DIR / UNIVERSE_CACHE_FILENAME
 
 
-def load_universe_cache(key: str, limit: int) -> list[str] | None:
+def load_universe_cache(key: str, limit: int | None = None) -> list[str] | None:
     path = universe_cache_path()
     if not path.exists() or REFRESH_CACHE:
         return None
@@ -101,7 +101,7 @@ def load_universe_cache(key: str, limit: int) -> list[str] | None:
         tickers = unique_tickers(data.get(key, []))
         if tickers:
             print(f"{key}: universe cache hit ({len(tickers)} tickers)", flush=True)
-            return tickers[:limit]
+            return tickers[:limit] if limit else tickers
     except Exception as exc:
         print(f"{key}: universe cache read failed ({format_error(exc)})", flush=True)
     return None
@@ -118,7 +118,7 @@ def save_universe_cache(key: str, tickers: list[str]) -> None:
         print(f"{key}: universe cache write failed ({format_error(exc)})", flush=True)
 
 
-def extract_tickers_with_cache(key: str, url: str, limit: int) -> list[str]:
+def extract_tickers_with_cache(key: str, url: str, limit: int | None = None) -> list[str]:
     cached = load_universe_cache(key, limit)
     if cached is not None:
         return cached
@@ -128,7 +128,7 @@ def extract_tickers_with_cache(key: str, url: str, limit: int) -> list[str]:
     return tickers
 
 
-def extract_tickers_from_html_table(url: str, limit: int) -> list[str]:
+def extract_tickers_from_html_table(url: str, limit: int | None = None) -> list[str]:
     headers = {"User-Agent": USER_AGENT}
     response = requests.get(url, headers=headers, timeout=20)
     response.raise_for_status()
@@ -142,9 +142,21 @@ def extract_tickers_from_html_table(url: str, limit: int) -> list[str]:
 
         tickers = unique_tickers(table[ticker_col].dropna().tolist())
         if tickers:
-            return tickers[:limit]
+            return tickers[:limit] if limit else tickers
 
     return []
+
+
+def merge_stock_universes(sp500_tickers: list[str], nasdaq100_tickers: list[str]) -> tuple[list[str], dict[str, str]]:
+    source_map: dict[str, list[str]] = {}
+    for ticker in unique_tickers(sp500_tickers):
+        source_map.setdefault(ticker, []).append("S&P500")
+    for ticker in unique_tickers(nasdaq100_tickers):
+        source_map.setdefault(ticker, []).append("NASDAQ100")
+
+    merged = unique_tickers([*sp500_tickers, *nasdaq100_tickers])
+    universe_map = {ticker: ",".join(source_map.get(ticker, ["Stock"])) for ticker in merged}
+    return merged, universe_map
 
 
 def load_universe(
@@ -152,18 +164,21 @@ def load_universe(
     etfs_csv: str | None,
     stock_limit: int,
     etf_limit: int,
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], dict[str, str]]:
     if stocks_csv:
         stock_tickers = load_tickers_from_csv(stocks_csv, stock_limit)
+        stock_universe_map = {ticker: "CustomStock" for ticker in stock_tickers}
     else:
-        stock_tickers = extract_tickers_with_cache("stock_top", DEFAULT_STOCK_URL, stock_limit)
+        sp500_tickers = extract_tickers_with_cache("sp500_top", DEFAULT_STOCK_URL, stock_limit)
+        nasdaq100_tickers = extract_tickers_with_cache("nasdaq100", DEFAULT_NASDAQ100_URL)
+        stock_tickers, stock_universe_map = merge_stock_universes(sp500_tickers, nasdaq100_tickers)
 
     if etfs_csv:
         etf_tickers = load_tickers_from_csv(etfs_csv, etf_limit)
     else:
         etf_tickers = extract_tickers_with_cache("etf_top", DEFAULT_ETF_URL, etf_limit)
 
-    return stock_tickers, etf_tickers
+    return stock_tickers, etf_tickers, stock_universe_map
 
 
 def fetch_common_market_data(period: str = "2y") -> dict:
@@ -470,6 +485,7 @@ def scan_batch(
     target_date: pd.Timestamp,
     period: str,
     common_data: dict,
+    stock_universe_map: dict[str, str] | None = None,
     progress_start: int = 0,
     progress_total: int | None = None,
 ) -> tuple[list[dict], bool]:
@@ -504,13 +520,15 @@ def scan_batch(
         if not puddle_signal and not rsi_puddle_signal:
             continue
 
+        is_etf = universe_name == "etf_top"
         signal = "RSI & Puddle" if rsi_puddle_signal else "Puddle"
         actual_date = pd.to_datetime(row.get("Date")).strftime("%Y-%m-%d")
 
         results.append(
             {
                 "date": actual_date,
-                "asset_type": "ETF" if universe_name == "etf_top" else "Stock",
+                "asset_type": "ETF" if is_etf else "Stock",
+                "universe": "ETF" if is_etf else (stock_universe_map or {}).get(ticker, "Stock"),
                 "ticker": ticker,
                 "signal": signal,
                 "close": row.get("Close"),
@@ -531,6 +549,7 @@ def chunked(items: list[str], size: int) -> Iterable[list[str]]:
 def scan_universe(
     stock_tickers: list[str],
     etf_tickers: list[str],
+    stock_universe_map: dict[str, str],
     target_date: pd.Timestamp,
     period: str,
     batch_size: int,
@@ -554,6 +573,7 @@ def scan_universe(
                 target_date=target_date,
                 period=period,
                 common_data=common_data,
+                stock_universe_map=stock_universe_map,
                 progress_start=batch_start,
                 progress_total=len(tickers),
             )
@@ -566,6 +586,7 @@ def scan_universe(
         "scan_timestamp_utc",
         "date",
         "asset_type",
+        "universe",
         "ticker",
         "signal",
         "close",
@@ -580,7 +601,7 @@ def scan_universe(
     df = pd.DataFrame(all_results)
     signal_rank = {"RSI & Puddle": 0, "Puddle": 1}
     df["_rank"] = df["signal"].map(signal_rank).fillna(99)
-    df = df.sort_values(["date", "_rank", "asset_type", "ticker"], ascending=[False, True, True, True])
+    df = df.sort_values(["date", "_rank", "asset_type", "universe", "ticker"], ascending=[False, True, True, True, True])
     return df.drop(columns=["_rank"]).reset_index(drop=True)
 
 
@@ -591,11 +612,11 @@ def daily_output_path(target_date: pd.Timestamp) -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Scan top stocks and ETFs for Puddle / RSI & Puddle signals."
+        description="Scan large-cap stocks and ETFs for Puddle / RSI & Puddle signals."
     )
     parser.add_argument("--date", help="Scan date in YYYY-MM-DD. Defaults to today UTC.")
     parser.add_argument("--period", default="2y", help="Historical download period. Default: 2y.")
-    parser.add_argument("--stock-limit", type=int, default=100, help="Number of stock tickers.")
+    parser.add_argument("--stock-limit", type=int, default=100, help="Number of S&P 500 stock tickers. Nasdaq 100 is added separately.")
     parser.add_argument("--etf-limit", type=int, default=100, help="Number of ETF tickers.")
     parser.add_argument("--stocks-csv", help="Optional CSV containing stock tickers.")
     parser.add_argument("--etfs-csv", help="Optional CSV containing ETF tickers.")
@@ -627,7 +648,7 @@ def main() -> None:
     print(f"Scan timestamp UTC: {scan_timestamp.isoformat()}", flush=True)
     print(f"Yahoo cache: {CACHE_DIR}", flush=True)
 
-    stock_tickers, etf_tickers = load_universe(
+    stock_tickers, etf_tickers, stock_universe_map = load_universe(
         stocks_csv=args.stocks_csv,
         etfs_csv=args.etfs_csv,
         stock_limit=args.stock_limit,
@@ -643,6 +664,7 @@ def main() -> None:
         result = scan_universe(
             stock_tickers=stock_tickers,
             etf_tickers=etf_tickers,
+            stock_universe_map=stock_universe_map,
             target_date=target_date,
             period=args.period,
             batch_size=args.batch_size,
