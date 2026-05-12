@@ -45,7 +45,6 @@ USER_AGENT = (
 
 DEFAULT_STOCK_URL = "https://www.slickcharts.com/sp500"
 DEFAULT_NASDAQ100_URL = "https://en.wikipedia.org/wiki/Nasdaq-100"
-DEFAULT_ETF_URL = "https://etfdb.com/compare/market-cap/"
 YF_REQUEST_PAUSE_SECONDS = 3.0
 YF_RETRIES = 0
 YF_RETRY_PAUSE_SECONDS = 15.0
@@ -54,6 +53,14 @@ CACHE_MAX_HOURS = 0.0
 REFRESH_CACHE = False
 UNIVERSE_CACHE_FILENAME = "ticker_universe.json"
 OUTPUT_DIR = Path(__file__).resolve().parent / "signal_scans"
+DEFAULT_ETF_TICKERS = [
+    "SPY", "IVV", "VOO", "VTI", "QQQ", "VEA", "VTV", "IEFA", "VUG", "AGG",
+    "BND", "IEMG", "VWO", "IJH", "VIG", "IJR", "IWF", "IWM", "GLD", "IWD",
+    "VO", "VB", "VXUS", "XLK", "VGT", "SCHD", "VNQ", "XLV", "XLF", "XLE",
+    "XLY", "XLI", "XLP", "XLU", "XLB", "XLRE", "XLC", "TLT", "HYG", "LQD",
+    "TIP", "SHY", "IEF", "BIL", "SGOV", "DIA", "RSP", "MDY", "SMH", "SOXX",
+    "ARKK", "EFA", "EEM", "EWJ", "EWZ", "FXI", "VGK", "GDX", "SLV", "USO",
+]
 
 
 class YahooRateLimitError(RuntimeError):
@@ -122,7 +129,11 @@ def extract_tickers_with_cache(key: str, url: str, limit: int | None = None) -> 
     cached = load_universe_cache(key, limit)
     if cached is not None:
         return cached
-    tickers = extract_tickers_from_html_table(url, limit)
+    try:
+        tickers = extract_tickers_from_html_table(url, limit)
+    except Exception as exc:
+        print(f"{key}: universe download failed ({format_error(exc)})", flush=True)
+        return []
     if tickers:
         save_universe_cache(key, tickers)
     return tickers
@@ -176,7 +187,7 @@ def load_universe(
     if etfs_csv:
         etf_tickers = load_tickers_from_csv(etfs_csv, etf_limit)
     else:
-        etf_tickers = extract_tickers_with_cache("etf_top", DEFAULT_ETF_URL, etf_limit)
+        etf_tickers = unique_tickers(DEFAULT_ETF_TICKERS)[:etf_limit]
 
     return stock_tickers, etf_tickers, stock_universe_map
 
