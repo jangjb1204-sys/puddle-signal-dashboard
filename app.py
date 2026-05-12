@@ -136,9 +136,8 @@ def safe_num(value, suffix="") -> str:
         return "--"
 
 def calendar_weeks(selected_month):
-    cal = Calendar(firstweekday=0)
-    for week in cal.monthdatescalendar(selected_month.year, selected_month.month):
-        yield [week[-1], *week[:-1]]
+    cal = Calendar(firstweekday=6)
+    yield from cal.monthdatescalendar(selected_month.year, selected_month.month)
 
 def render_calendar_header() -> str:
     cells = [f"<div class='calendar-dow'>{day}</div>" for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
@@ -158,11 +157,15 @@ def render_signal_table(df: pd.DataFrame) -> str:
     for _, row in df.iterrows():
         signal = str(row.get("signal", ""))
         strong = "strong" if signal == "RSI & Puddle" else ""
+        rank = row.get("rank", "")
+        company = row.get("company_name", "")
         rows.append(
             "<tr>"
             f"<td><span class='type-badge'>{escape(str(row.get('asset_type','')))}</span></td>"
             f"<td class='muted'>{escape(str(row.get('universe','')))}</td>"
+            f"<td class='num'>{escape(str(rank)) if str(rank).strip() else '--'}</td>"
             f"<td><span class='ticker'>{escape(str(row.get('ticker','')))}</span></td>"
+            f"<td>{escape(str(company)) if str(company).strip() else '--'}</td>"
             f"<td><span class='signal-badge {strong}'>{escape(signal)}</span></td>"
             f"<td class='num'>{safe_num(row.get('close'))}</td>"
             f"<td class='num'>{safe_num(row.get('change_pct'), '%')}</td>"
@@ -173,7 +176,7 @@ def render_signal_table(df: pd.DataFrame) -> str:
     return """
     <div class='signal-table-wrap'>
       <table class='signal-table'>
-        <thead><tr><th>Type</th><th>Universe</th><th>Ticker</th><th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th></tr></thead>
+        <thead><tr><th>Type</th><th>Universe</th><th>Rank</th><th>Ticker</th><th>Company</th><th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th></tr></thead>
         <tbody>
     """ + "".join(rows) + "</tbody></table></div>"
 
