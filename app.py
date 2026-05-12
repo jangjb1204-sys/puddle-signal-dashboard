@@ -17,6 +17,21 @@ def output_path_for(target_date: pd.Timestamp) -> Path:
     return APP_DIR / f"signal_scan_{target_date:%Y%m%d}.csv"
 
 
+def saved_result_paths() -> list[Path]:
+    return sorted(APP_DIR.glob("signal_scan_*.csv"), reverse=True)
+
+
+def latest_saved_date(default: pd.Timestamp) -> pd.Timestamp:
+    paths = saved_result_paths()
+    if not paths:
+        return default
+    latest = paths[0].stem.replace("signal_scan_", "")
+    try:
+        return pd.Timestamp.strptime(latest, "%Y%m%d").normalize()
+    except Exception:
+        return default
+
+
 def render_css() -> None:
     st.markdown(
         """
@@ -161,6 +176,7 @@ def main() -> None:
     render_css()
 
     today = pd.Timestamp.today().normalize()
+    default_date = latest_saved_date(today)
 
     st.markdown('<div class="app-title">Puddle Signal Scanner</div>', unsafe_allow_html=True)
     st.markdown(
@@ -170,7 +186,7 @@ def main() -> None:
 
     with st.sidebar:
         st.markdown("### Scan")
-        selected_date = st.date_input("Date", value=today.date())
+        selected_date = st.date_input("Date", value=default_date.date())
         stock_limit = st.number_input("Stock limit", min_value=1, max_value=500, value=100, step=10)
         etf_limit = st.number_input("ETF limit", min_value=1, max_value=500, value=100, step=10)
         cache_max_hours = st.number_input(
@@ -229,7 +245,7 @@ def main() -> None:
 
     if result.empty:
         st.markdown(
-            '<div class="status-note">아직 결과가 없거나 해당 날짜에 신호가 없습니다. 왼쪽에서 Run scan을 눌러 조회하세요.</div>',
+            '<div class="status-note">저장된 결과가 없거나 해당 날짜에 신호가 없습니다. GitHub Actions가 만든 최신 CSV가 있으면 자동으로 먼저 표시됩니다.</div>',
             unsafe_allow_html=True,
         )
     else:
