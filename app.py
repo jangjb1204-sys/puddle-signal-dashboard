@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from calendar import month_name
+from calendar import Calendar, month_name
 from html import escape
 from pathlib import Path
 
@@ -65,6 +65,16 @@ html, body, [class*="css"], .stApp {
 .stage .count { margin-top:.45rem; font-family:'DM Mono', monospace; color:#f5f5f7; font-size:1.45rem; }
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
 
+.calendar-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:.2rem 0 .9rem; }
+.calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; }
+.calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:1.25rem; }
+.calendar-dow { color:#777b84; text-align:center; font-size:.68rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; padding:.25rem 0; }
+.calendar-cell { min-height:48px; border:1px solid rgba(255,255,255,.055); border-radius:15px; background:rgba(255,255,255,.018); color:rgba(245,245,247,.22); display:flex; align-items:center; justify-content:center; font-family:'DM Mono', monospace; font-size:.83rem; }
+.calendar-cell.out { opacity:.28; }
+.calendar-cell.has-data { border-color:rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:#d7dce5; }
+.calendar-cell.selected { background:#d8dde6; color:#111318; border-color:#d8dde6; font-weight:600; }
+.calendar-cell button { all:unset; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:15px; }
+
 /* Controls */
 div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:#8e8e93!important; font-size:.76rem!important; font-weight:760!important; letter-spacing:.06em!important; text-transform:uppercase!important; }
 div[data-baseweb="select"] > div,
@@ -78,7 +88,7 @@ div[data-testid="stTextInput"] input::placeholder { color:rgba(245,245,247,.25)!
 div[data-baseweb="popover"], div[data-baseweb="menu"] { background:#11141b!important; color:#f5f5f7!important; }
 li[role="option"] { background:#11141b!important; color:#f5f5f7!important; }
 li[role="option"]:hover { background:#1b202b!important; }
-.stButton > button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:46px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
+.stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:46px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
 
 .signal-table-wrap { margin-top: 1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; overflow-x:auto; }
@@ -95,7 +105,7 @@ li[role="option"]:hover { background:#1b202b!important; }
 .puddle-text { color:#b7bcc7; max-width:330px; }
 .empty-note { color:#8e8e93; padding:1.2rem 0; }
 @media (max-width:900px){ .block-container{padding:3.4rem 1.5rem 2.4rem!important;} .hero{display:block;} .top-stats{margin-top:1.2rem;} .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));} .title-wrap h1{font-size:2.45rem;} }
-@media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} }
+@media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} .calendar-grid{gap:5px}.calendar-cell{min-height:39px;border-radius:12px;font-size:.76rem;} }
 </style>
 """
 
@@ -138,6 +148,24 @@ def safe_num(value, suffix="") -> str:
         return f"{float(value):.2f}{suffix}"
     except Exception:
         return "--"
+
+def render_calendar(file_df: pd.DataFrame, selected_date, selected_month) -> str:
+    dates = set(file_df["date"].tolist())
+    cal = Calendar(firstweekday=0)
+    cells = []
+    for day_name in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]:
+        cells.append(f"<div class='calendar-dow'>{day_name}</div>")
+    for week in cal.monthdatescalendar(selected_month.year, selected_month.month):
+        for day in week:
+            classes = ["calendar-cell"]
+            if day.month != selected_month.month:
+                classes.append("out")
+            if day in dates:
+                classes.append("has-data")
+            if day == selected_date:
+                classes.append("selected")
+            cells.append(f"<div class='{' '.join(classes)}'>{day.day if day.month == selected_month.month else ''}</div>")
+    return f"<div class='calendar-head'><div class='calendar-title'>{month_name[selected_month.month]} {selected_month.year}</div></div><div class='calendar-grid'>{''.join(cells)}</div>"
 
 def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
@@ -208,13 +236,15 @@ def main() -> None:
     st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
     month_options = sorted({d.replace(day=1) for d in file_df["date"]}, reverse=True)
     selected_month = st.selectbox("Month", month_options, format_func=lambda d: f"{d.year}. {d.month:02d}")
-    month_days = file_df[file_df["date"].apply(lambda d: d.year == selected_month.year and d.month == selected_month.month)].sort_values("date", ascending=False)
-    cols = st.columns(min(8, max(1, len(month_days))))
-    for idx, (_, row) in enumerate(month_days.iterrows()):
-        day = row["date"]
-        if cols[idx % len(cols)].button(f"{month_name[day.month][:3]} {day.day}", key=f"date-{day.isoformat()}", type="primary" if day == selected_date else "secondary"):
-            st.session_state.selected_scan_date = day
-            st.rerun()
+    st.markdown(render_calendar(file_df, selected_date, selected_month), unsafe_allow_html=True)
+    month_days = file_df[file_df["date"].apply(lambda d: d.year == selected_month.year and d.month == selected_month.month)].sort_values("date", ascending=True)
+    if not month_days.empty:
+        cols = st.columns(min(8, max(1, len(month_days))))
+        for idx, (_, row) in enumerate(month_days.iterrows()):
+            day = row["date"]
+            if cols[idx % len(cols)].button(f"{month_name[day.month][:3]} {day.day}", key=f"date-{day.isoformat()}", type="primary" if day == selected_date else "secondary"):
+                st.session_state.selected_scan_date = day
+                st.rerun()
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
