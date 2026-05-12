@@ -122,6 +122,13 @@ def load_scan_csv(path: str, mtime_ns: int | None = None) -> pd.DataFrame:
         df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date
     return df
 
+def normalize_index_label(value) -> str:
+    text = str(value or "").strip()
+    normalized = text.replace(" ", "")
+    if normalized in {"S&P500,NASDAQ100", "NASDAQ100,S&P500"}:
+        return "Dual"
+    return text
+
 def parse_stage(puddle) -> str:
     text = str(puddle or "")
     for stage in ["4th", "3rd", "2nd", "1st"]:
@@ -159,10 +166,11 @@ def render_signal_table(df: pd.DataFrame) -> str:
         strong = "strong" if signal == "RSI & Puddle" else ""
         rank = row.get("rank", "")
         company = row.get("company_name", "")
+        index_label = normalize_index_label(row.get("universe", ""))
         rows.append(
             "<tr>"
             f"<td><span class='type-badge'>{escape(str(row.get('asset_type','')))}</span></td>"
-            f"<td class='muted'>{escape(str(row.get('universe','')))}</td>"
+            f"<td class='muted'>{escape(index_label)}</td>"
             f"<td class='num'>{escape(str(rank)) if str(rank).strip() else '--'}</td>"
             f"<td><span class='ticker'>{escape(str(row.get('ticker','')))}</span></td>"
             f"<td>{escape(str(company)) if str(company).strip() else '--'}</td>"
@@ -176,7 +184,7 @@ def render_signal_table(df: pd.DataFrame) -> str:
     return """
     <div class='signal-table-wrap'>
       <table class='signal-table'>
-        <thead><tr><th>Type</th><th>Universe</th><th>Rank</th><th>Ticker</th><th>Company</th><th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th></tr></thead>
+        <thead><tr><th>Type</th><th>Index</th><th>Rank</th><th>Ticker</th><th>Company</th><th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th></tr></thead>
         <tbody>
     """ + "".join(rows) + "</tbody></table></div>"
 
