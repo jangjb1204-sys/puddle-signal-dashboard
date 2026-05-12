@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from calendar import Calendar, month_name
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -55,23 +54,19 @@ html, body, [class*="css"], .stApp {
     position: relative;
     z-index: 1;
 }
+.app-hero, .glass-card {
+    border: 1px solid rgba(190,220,255,0.20);
+    background: linear-gradient(145deg, rgba(241,248,255,0.14), rgba(255,255,255,0.04)), rgba(7,23,42,0.54);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 18px 54px rgba(0,0,0,0.22);
+    backdrop-filter: blur(28px) saturate(1.5);
+    -webkit-backdrop-filter: blur(28px) saturate(1.5);
+}
 .app-hero {
     position: relative;
     overflow: hidden;
     margin: 0.2rem 0 1.05rem;
     padding: 1.22rem 1.32rem 1.18rem;
-    border: 1px solid rgba(190,220,255,0.24);
     border-radius: 30px;
-    background:
-        linear-gradient(142deg, rgba(238,248,255,0.21), rgba(117,181,255,0.07) 38%, rgba(255,255,255,0.035) 70%),
-        rgba(8,28,50,0.62);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.34),
-        inset 0 -1px 0 rgba(255,255,255,0.08),
-        0 22px 70px rgba(0,0,0,0.32),
-        0 0 0 1px rgba(255,255,255,0.035);
-    backdrop-filter: blur(34px) saturate(1.65);
-    -webkit-backdrop-filter: blur(34px) saturate(1.65);
 }
 .app-hero::before {
     content: "";
@@ -111,15 +106,11 @@ html, body, [class*="css"], .stApp {
     padding: 9px 14px;
     border: 1px solid rgba(190,220,255,0.24);
     border-radius: 999px;
-    background:
-        linear-gradient(135deg, rgba(231,246,255,0.15), rgba(255,255,255,0.04)),
-        rgba(7,24,43,0.56);
+    background: linear-gradient(135deg, rgba(231,246,255,0.15), rgba(255,255,255,0.04)), rgba(7,24,43,0.56);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), 0 14px 38px rgba(0,0,0,0.16);
     color: rgba(226,240,255,0.72);
     font-size: 0.78rem;
     white-space: nowrap;
-    backdrop-filter: blur(22px) saturate(1.4);
-    -webkit-backdrop-filter: blur(22px) saturate(1.4);
 }
 .viewer-pill strong, .updated-mark strong, .mini-pill strong { color: #9cccff; font-weight: 750; }
 .section-label {
@@ -132,19 +123,9 @@ html, body, [class*="css"], .stApp {
     position: relative;
     overflow: hidden;
     padding: 16px 17px;
-    border: 1px solid rgba(190,220,255,0.17);
     border-radius: 24px;
-    background:
-        linear-gradient(145deg, rgba(241,248,255,0.14), rgba(255,255,255,0.04) 54%, rgba(117,181,255,0.03)),
-        rgba(7,23,42,0.52);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.24),
-        inset 0 -1px 0 rgba(255,255,255,0.05),
-        0 18px 54px rgba(0,0,0,0.22);
-    backdrop-filter: blur(28px) saturate(1.5);
-    -webkit-backdrop-filter: blur(28px) saturate(1.5);
 }
-.metric-grid {
+.metric-grid, .signal-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
@@ -167,12 +148,6 @@ html, body, [class*="css"], .stApp {
     color: rgba(207,228,255,0.48);
     font-size: 0.76rem;
 }
-.signal-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    margin: 0.6rem 0 1.0rem;
-}
 .signal-card { min-height: 128px; }
 .signal-title {
     display: flex;
@@ -187,9 +162,13 @@ html, body, [class*="css"], .stApp {
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 55%, transparent);
+    background: #9cccff;
+    box-shadow: 0 0 18px rgba(156,204,255,0.55);
 }
+.signal-dot.blue { background:#64a8ff; box-shadow: 0 0 18px rgba(100,168,255,0.55); }
+.signal-dot.sky { background:#9cccff; box-shadow: 0 0 18px rgba(156,204,255,0.55); }
+.signal-dot.yellow { background:#ffd166; box-shadow: 0 0 18px rgba(255,209,102,0.45); }
+.signal-dot.red { background:#ff6b7a; box-shadow: 0 0 18px rgba(255,107,122,0.50); }
 .signal-item {
     display: flex;
     justify-content: space-between;
@@ -206,9 +185,7 @@ html, body, [class*="css"], .stApp {
     font-family: 'DM Mono', monospace;
     font-size: 0.76rem;
 }
-.calendar-wrap {
-    padding: 15px;
-}
+.calendar-wrap { padding: 15px; }
 .calendar-head {
     display: flex;
     align-items: center;
@@ -220,18 +197,6 @@ html, body, [class*="css"], .stApp {
     color: #f7fbff;
     font-size: 1.05rem;
     font-weight: 750;
-}
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 8px;
-}
-.calendar-dow {
-    color: rgba(207,228,255,0.46);
-    text-align: center;
-    font-size: 0.68rem;
-    font-weight: 750;
-    padding: 4px 0;
 }
 .calendar-day {
     min-height: 42px;
@@ -245,29 +210,7 @@ html, body, [class*="css"], .stApp {
     font-family: 'DM Mono', monospace;
     font-size: 0.78rem;
 }
-.calendar-day.has-data {
-    color: #f7fbff;
-    background: linear-gradient(145deg, rgba(156,204,255,0.18), rgba(255,255,255,0.04)), rgba(9,29,52,0.62);
-    border-color: rgba(190,220,255,0.24);
-    cursor: pointer;
-}
-.calendar-day.selected {
-    background: linear-gradient(145deg, rgba(232,246,255,0.95), rgba(156,204,255,0.76));
-    color: #071323;
-    border-color: rgba(231,246,255,0.86);
-    box-shadow: 0 18px 42px rgba(55,144,255,0.20);
-    font-weight: 750;
-}
-.dataframe-wrap {
-    border: 1px solid rgba(190,220,255,0.17);
-    border-radius: 24px;
-    overflow: hidden;
-    background: rgba(7,23,42,0.38);
-}
-div[data-testid="stDataFrame"] {
-    border-radius: 24px !important;
-    overflow: hidden !important;
-}
+div[data-testid="stDataFrame"] { border-radius: 24px !important; overflow: hidden !important; }
 div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label {
     color: rgba(207,228,255,0.64) !important;
     font-size: 0.76rem !important;
@@ -304,7 +247,6 @@ div[data-baseweb="select"] span, div[data-testid="stTextInput"] input {
 @media (max-width: 640px) {
     .metric-grid, .signal-grid { grid-template-columns: 1fr; }
     .block-container { padding-left: 1rem !important; padding-right: 1rem !important; }
-    .calendar-grid { gap: 6px; }
     .calendar-day { min-height: 38px; border-radius: 12px; }
 }
 </style>
@@ -366,27 +308,24 @@ def parse_stage(puddle: str) -> str:
     return "Other"
 
 
-def signal_card(title: str, count: int, subtitle: str, accent: str) -> str:
+def signal_card(title: str, count: int, subtitle: str, dot_class: str) -> str:
     return f"""
-    <div class="glass-card signal-card" style="--accent:{accent};">
-        <div class="signal-title"><span class="signal-dot"></span>{title}</div>
+    <div class="glass-card signal-card">
+        <div class="signal-title"><span class="signal-dot {dot_class}"></span>{title}</div>
         <div class="signal-item"><span>Signals</span><span class="signal-date">{count}</span></div>
         <div class="signal-item"><span>{subtitle}</span><span class="signal-date">active</span></div>
     </div>
     """
 
 
-def render_calendar(file_df: pd.DataFrame, selected_date) -> object:
+def render_calendar(file_df: pd.DataFrame, selected_date) -> None:
     dates = set(file_df["date"].tolist())
-    latest = max(dates) if dates else selected_date
-    current = selected_date or latest
-
     month_options = sorted({d.replace(day=1) for d in dates}, reverse=True)
     if not month_options:
-        return selected_date
+        return
 
     if "calendar_month" not in st.session_state:
-        st.session_state.calendar_month = current.replace(day=1)
+        st.session_state.calendar_month = selected_date.replace(day=1)
 
     selected_month = st.selectbox(
         "Month",
@@ -396,18 +335,22 @@ def render_calendar(file_df: pd.DataFrame, selected_date) -> object:
     )
     st.session_state.calendar_month = selected_month
 
+    saved_days = len([d for d in dates if d.year == selected_month.year and d.month == selected_month.month])
     st.markdown(
         f"""
         <div class="glass-card calendar-wrap">
             <div class="calendar-head">
                 <div class="calendar-title">{month_name[selected_month.month]} {selected_month.year}</div>
-                <div class="mini-pill"><strong>{len([d for d in dates if d.year == selected_month.year and d.month == selected_month.month])}</strong> saved days</div>
+                <div class="mini-pill"><strong>{saved_days}</strong> saved days</div>
             </div>
-            <div class="calendar-grid">
-                <div class="calendar-dow">Mon</div><div class="calendar-dow">Tue</div><div class="calendar-dow">Wed</div><div class="calendar-dow">Thu</div><div class="calendar-dow">Fri</div><div class="calendar-dow">Sat</div><div class="calendar-dow">Sun</div>
+        </div>
         """,
         unsafe_allow_html=True,
     )
+
+    cols = st.columns(7)
+    for idx, name in enumerate(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]):
+        cols[idx].markdown(f"<div style='text-align:center;color:rgba(207,228,255,.46);font-size:.68rem;font-weight:750'>{name}</div>", unsafe_allow_html=True)
 
     cal = Calendar(firstweekday=0)
     weeks = cal.monthdatescalendar(selected_month.year, selected_month.month)
@@ -424,9 +367,6 @@ def render_calendar(file_df: pd.DataFrame, selected_date) -> object:
                     st.rerun()
             else:
                 cols[i].markdown(f"<div class='calendar-day'>{label}</div>", unsafe_allow_html=True)
-
-    st.markdown("</div></div>", unsafe_allow_html=True)
-    return st.session_state.get("selected_scan_date", selected_date)
 
 
 def prepare_display_table(df: pd.DataFrame) -> pd.DataFrame:
@@ -473,12 +413,17 @@ def main() -> None:
         st.session_state.selected_scan_date = latest_date
 
     selected_date = st.session_state.selected_scan_date
+    if selected_date not in set(file_df["date"].tolist()):
+        selected_date = latest_date
+        st.session_state.selected_scan_date = latest_date
+
     selected_row = file_df[file_df["date"] == selected_date].iloc[-1]
     df = load_scan_csv(selected_row["path"])
 
     scan_time = "Unknown"
     if not df.empty and "scan_timestamp_utc" in df.columns:
-        scan_time = str(df["scan_timestamp_utc"].dropna().iloc[0]) if not df["scan_timestamp_utc"].dropna().empty else "Unknown"
+        valid_times = df["scan_timestamp_utc"].dropna()
+        scan_time = str(valid_times.iloc[0]) if not valid_times.empty else "Unknown"
 
     total = len(df)
     rsi_puddle = int((df.get("signal") == "RSI & Puddle").sum()) if not df.empty and "signal" in df.columns else 0
@@ -520,10 +465,10 @@ def main() -> None:
         st.markdown("<div class='section-label'>Puddle stages</div>", unsafe_allow_html=True)
         st.markdown(
             "<div class='signal-grid'>"
-            + signal_card("1st Puddle", stage_counts.get("1st", 0), "MA20 break", "#64a8ff")
-            + signal_card("2nd Puddle", stage_counts.get("2nd", 0), "MA60 break", "#9cccff")
-            + signal_card("3rd Puddle", stage_counts.get("3rd", 0), "MA120 break", "#ffd166")
-            + signal_card("4th Puddle", stage_counts.get("4th", 0), "MA200 + RSI", "#ff6b7a")
+            + signal_card("1st Puddle", stage_counts.get("1st", 0), "MA20 break", "blue")
+            + signal_card("2nd Puddle", stage_counts.get("2nd", 0), "MA60 break", "sky")
+            + signal_card("3rd Puddle", stage_counts.get("3rd", 0), "MA120 break", "yellow")
+            + signal_card("4th Puddle", stage_counts.get("4th", 0), "MA200 + RSI", "red")
             + "</div>",
             unsafe_allow_html=True,
         )
