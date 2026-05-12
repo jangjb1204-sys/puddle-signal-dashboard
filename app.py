@@ -27,7 +27,7 @@ def latest_saved_date(default: pd.Timestamp) -> pd.Timestamp:
         return default
     latest = paths[0].stem.replace("signal_scan_", "")
     try:
-        return pd.Timestamp.strptime(latest, "%Y%m%d").normalize()
+        return pd.to_datetime(latest, format="%Y%m%d").normalize()
     except Exception:
         return default
 
