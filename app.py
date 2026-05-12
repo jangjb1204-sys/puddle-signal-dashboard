@@ -66,12 +66,10 @@ html, body, [class*="css"], .stApp {
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
 .calendar-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:.2rem 0 .9rem; }
 .calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; text-align:center; }
-.calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:1.25rem; }
+.calendar-grid-static { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:.45rem; }
 .calendar-dow { color:#777b84; text-align:center; font-size:.68rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; padding:.25rem 0; }
-.calendar-cell { min-height:48px; border:1px solid rgba(255,255,255,.055); border-radius:15px; background:rgba(255,255,255,.018); color:rgba(245,245,247,.22); display:flex; align-items:center; justify-content:center; font-family:'DM Mono', monospace; font-size:.83rem; }
-.calendar-cell.out { opacity:.28; }
-.calendar-cell.has-data { border-color:rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:#d7dce5; }
-.calendar-cell.selected { background:#d8dde6; color:#111318; border-color:#d8dde6; font-weight:600; }
+.calendar-empty { min-height:46px; border:1px solid rgba(255,255,255,.045); border-radius:15px; background:rgba(255,255,255,.012); color:rgba(245,245,247,.16); display:flex; align-items:center; justify-content:center; font-family:'DM Mono', monospace; font-size:.8rem; }
+.calendar-empty.out { opacity:.28; }
 .filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin:0 0 .42rem .15rem; }
 .stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:36px!important; padding:0 13px!important; font-size:.78rem!important; font-weight:720!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
@@ -93,7 +91,7 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
 .creator-footer a { color:rgba(245,245,247,.34); font-family:'DM Sans', sans-serif; font-size:1rem; font-weight:650; text-decoration:none!important; }
 .creator-footer a:hover { color:rgba(245,245,247,.58); }
 @media (max-width:900px){ .block-container{padding:3.4rem 1.5rem 2.4rem!important;} .hero{display:block;} .top-stats{margin-top:1.2rem;} .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));} .title-wrap h1{font-size:2.45rem;} }
-@media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} .calendar-grid{gap:5px}.calendar-cell{min-height:39px;border-radius:12px;font-size:.76rem;} }
+@media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} .calendar-grid-static{gap:5px}.calendar-empty{min-height:39px;border-radius:12px;font-size:.76rem;} }
 </style>
 """
 
@@ -137,24 +135,21 @@ def safe_num(value, suffix="") -> str:
     except Exception:
         return "--"
 
-def render_calendar(file_df: pd.DataFrame, selected_date, selected_month) -> str:
-    dates = set(file_df["date"].tolist())
+def calendar_weeks(selected_month):
     cal = Calendar(firstweekday=0)
-    cells = []
-    for day_name in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]:
-        cells.append(f"<div class='calendar-dow'>{day_name}</div>")
     for week in cal.monthdatescalendar(selected_month.year, selected_month.month):
-        sunday_first = [week[-1], *week[:-1]]
-        for day in sunday_first:
-            classes = ["calendar-cell"]
-            if day.month != selected_month.month:
-                classes.append("out")
-            if day in dates:
-                classes.append("has-data")
-            if day == selected_date:
-                classes.append("selected")
-            cells.append(f"<div class='{' '.join(classes)}'>{day.day if day.month == selected_month.month else ''}</div>")
-    return f"<div class='calendar-grid'>{''.join(cells)}</div>"
+        yield [week[-1], *week[:-1]]
+
+def render_calendar_header() -> str:
+    cells = [f"<div class='calendar-dow'>{day}</div>" for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
+    return f"<div class='calendar-grid-static'>{''.join(cells)}</div>"
+
+def render_empty_calendar_cell(day, selected_month) -> str:
+    classes = ["calendar-empty"]
+    if day.month != selected_month.month:
+        classes.append("out")
+    text = day.day if day.month == selected_month.month else ""
+    return f"<div class='{' '.join(classes)}'>{text}</div>"
 
 def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
@@ -253,7 +248,18 @@ def main() -> None:
             st.session_state.calendar_month = month_options[current_idx + 1]
             st.rerun()
 
-    st.markdown(render_calendar(file_df, selected_date, current_month), unsafe_allow_html=True)
+    st.markdown(render_calendar_header(), unsafe_allow_html=True)
+    available_dates = set(file_df["date"].tolist())
+    for week_index, week in enumerate(calendar_weeks(current_month)):
+        cols = st.columns(7, gap="small")
+        for col_index, day in enumerate(week):
+            with cols[col_index]:
+                if day in available_dates:
+                    if st.button(str(day.day), key=f"calendar-{day.isoformat()}", type="primary" if day == selected_date else "secondary", use_container_width=True):
+                        st.session_state.selected_scan_date = day
+                        st.rerun()
+                else:
+                    st.markdown(render_empty_calendar_cell(day, current_month), unsafe_allow_html=True)
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
