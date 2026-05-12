@@ -182,7 +182,7 @@ def chip_filter(label: str, options: list[str], key: str) -> str:
     if key not in st.session_state:
         st.session_state[key] = options[0]
     st.markdown(f"<div class='filter-label'>{label}</div>", unsafe_allow_html=True)
-    cols = st.columns(len(options))
+    cols = st.columns([1] * len(options), gap="small")
     for idx, option in enumerate(options):
         with cols[idx]:
             if st.button(option, key=f"{key}-{option}", type="primary" if st.session_state[key] == option else "secondary"):
@@ -271,7 +271,7 @@ def main() -> None:
 
     st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
     st.markdown("<div class='section-label'>Filter</div>", unsafe_allow_html=True)
-    filter_cols = st.columns([1.55, 2.15, 2.9])
+    filter_cols = st.columns([1.15, 1.75, 3.6])
     with filter_cols[0]:
         type_filter = chip_filter("Type", ["All", "Stock", "ETF"], "type_filter")
     with filter_cols[1]:
