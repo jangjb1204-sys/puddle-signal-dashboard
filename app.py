@@ -73,7 +73,7 @@ html, body, [class*="css"], .stApp {
 .calendar-cell.out { opacity:.28; }
 .calendar-cell.has-data { border-color:rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:#d7dce5; }
 .calendar-cell.selected { background:#d8dde6; color:#111318; border-color:#d8dde6; font-weight:600; }
-.calendar-cell button { all:unset; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:15px; }
+.month-nav-spacer { height:.25rem; }
 
 /* Controls */
 div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:#8e8e93!important; font-size:.76rem!important; font-weight:760!important; letter-spacing:.06em!important; text-transform:uppercase!important; }
@@ -165,7 +165,7 @@ def render_calendar(file_df: pd.DataFrame, selected_date, selected_month) -> str
             if day == selected_date:
                 classes.append("selected")
             cells.append(f"<div class='{' '.join(classes)}'>{day.day if day.month == selected_month.month else ''}</div>")
-    return f"<div class='calendar-head'><div class='calendar-title'>{month_name[selected_month.month]} {selected_month.year}</div></div><div class='calendar-grid'>{''.join(cells)}</div>"
+    return f"<div class='calendar-grid'>{''.join(cells)}</div>"
 
 def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
@@ -209,6 +209,12 @@ def main() -> None:
         selected_date = latest_date
         st.session_state.selected_scan_date = latest_date
 
+    month_options = sorted({d.replace(day=1) for d in file_df["date"]})
+    current_month = st.session_state.get("calendar_month", selected_date.replace(day=1))
+    if current_month not in month_options:
+        current_month = selected_date.replace(day=1)
+    current_idx = month_options.index(current_month)
+
     selected_row = file_df[file_df["date"] == selected_date].iloc[-1]
     df = load_scan_csv(selected_row["path"])
 
@@ -234,15 +240,25 @@ def main() -> None:
     """, unsafe_allow_html=True)
 
     st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
-    month_options = sorted({d.replace(day=1) for d in file_df["date"]}, reverse=True)
-    selected_month = st.selectbox("Month", month_options, format_func=lambda d: f"{d.year}. {d.month:02d}")
-    st.markdown(render_calendar(file_df, selected_date, selected_month), unsafe_allow_html=True)
-    month_days = file_df[file_df["date"].apply(lambda d: d.year == selected_month.year and d.month == selected_month.month)].sort_values("date", ascending=True)
+    nav_cols = st.columns([1, 5, 1])
+    with nav_cols[0]:
+        if st.button("‹", disabled=current_idx <= 0, key="prev-month"):
+            st.session_state.calendar_month = month_options[current_idx - 1]
+            st.rerun()
+    with nav_cols[1]:
+        st.markdown(f"<div class='calendar-head'><div class='calendar-title'>{month_name[current_month.month]} {current_month.year}</div></div>", unsafe_allow_html=True)
+    with nav_cols[2]:
+        if st.button("›", disabled=current_idx >= len(month_options) - 1, key="next-month"):
+            st.session_state.calendar_month = month_options[current_idx + 1]
+            st.rerun()
+
+    st.markdown(render_calendar(file_df, selected_date, current_month), unsafe_allow_html=True)
+    month_days = file_df[file_df["date"].apply(lambda d: d.year == current_month.year and d.month == current_month.month)].sort_values("date", ascending=True)
     if not month_days.empty:
         cols = st.columns(min(8, max(1, len(month_days))))
         for idx, (_, row) in enumerate(month_days.iterrows()):
             day = row["date"]
-            if cols[idx % len(cols)].button(f"{month_name[day.month][:3]} {day.day}", key=f"date-{day.isoformat()}", type="primary" if day == selected_date else "secondary"):
+            if cols[idx % len(cols)].button(f"{day.day}", key=f"date-{day.isoformat()}", type="primary" if day == selected_date else "secondary"):
                 st.session_state.selected_scan_date = day
                 st.rerun()
 
