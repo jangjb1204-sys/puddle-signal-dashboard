@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from calendar import month_name
+from html import escape
 from pathlib import Path
 
 import pandas as pd
@@ -39,12 +40,7 @@ html, body, [class*="css"], .stApp {
 #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="stHeader"], [data-testid="collapsedControl"] {
     display:none!important; visibility:hidden!important; height:0!important;
 }
-.block-container {
-    max-width: 1380px;
-    padding: 4.6rem 3.2rem 3rem !important;
-    position: relative;
-    z-index: 1;
-}
+.block-container { max-width: 1380px; padding: 4.6rem 3.2rem 3rem !important; position: relative; z-index: 1; }
 .hero { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; margin-bottom:2.7rem; }
 .title-wrap h1 { margin:0; font-size:2.95rem; line-height:1.04; font-weight:760; letter-spacing:-0.055em; color:#f5f5f7; }
 .title-row { display:flex; align-items:center; gap:14px; }
@@ -69,89 +65,29 @@ html, body, [class*="css"], .stApp {
 .stage .count { margin-top:.45rem; font-family:'DM Mono', monospace; color:#f5f5f7; font-size:1.45rem; }
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
 
-/* Force dark Streamlit controls */
-div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label {
-    color:#8e8e93!important;
-    font-size:.76rem!important;
-    font-weight:760!important;
-    letter-spacing:.06em!important;
-    text-transform:uppercase!important;
-    margin-bottom:.45rem!important;
-}
-div[data-baseweb="select"] > div,
-div[data-testid="stTextInput"] [data-baseweb="input"],
-div[data-testid="stTextInput"] input,
-input {
-    background:#0f1117!important;
-    color:#f5f5f7!important;
-    border-color:rgba(255,255,255,.10)!important;
-}
-div[data-baseweb="select"] > div,
-div[data-testid="stTextInput"] [data-baseweb="input"] {
-    border:1px solid rgba(255,255,255,.10)!important;
-    border-radius:16px!important;
-    min-height:58px!important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important;
-}
-div[data-baseweb="select"] span,
-div[data-baseweb="select"] div,
-div[data-testid="stTextInput"] input {
-    color:#f5f5f7!important;
-    font-family:'DM Sans', sans-serif!important;
-    font-weight:680!important;
-}
-div[data-testid="stTextInput"] input::placeholder { color:rgba(245,245,247,.22)!important; }
-div[data-baseweb="popover"], div[data-baseweb="menu"] { background:#11141b!important; color:#f5f5f7!important; }
-li[role="option"] { background:#11141b!important; color:#f5f5f7!important; }
-li[role="option"]:hover { background:#1b202b!important; }
-.stButton > button {
-    border-radius:999px!important;
-    border:1px solid rgba(255,255,255,.08)!important;
-    background:rgba(255,255,255,.035)!important;
-    color:#f5f5f7!important;
-    min-height:46px!important;
-    font-weight:740!important;
-    font-family:'DM Sans', sans-serif!important;
-}
+/* Controls */
+div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:#8e8e93!important; font-size:.76rem!important; font-weight:760!important; letter-spacing:.06em!important; text-transform:uppercase!important; }
+div[data-baseweb="select"] > div, div[data-testid="stTextInput"] [data-baseweb="input"] { background:#e9edf5!important; border:0!important; border-radius:14px!important; min-height:58px!important; box-shadow:none!important; }
+div[data-baseweb="select"] span, div[data-testid="stTextInput"] input { color:#16191f!important; font-family:'DM Sans', sans-serif!important; font-weight:720!important; }
+div[data-testid="stTextInput"] input::placeholder { color:rgba(22,25,31,.34)!important; }
+.stButton > button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:46px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
 
-/* Make dataframe darker. Streamlit may render parts in a shadow DOM/canvas, but this covers visible wrappers. */
-div[data-testid="stDataFrame"] {
-    border-top:1px solid rgba(255,255,255,.08);
-    padding-top:1.2rem;
-    color:#f5f5f7!important;
-}
-div[data-testid="stDataFrame"] * {
-    font-family:'DM Sans', sans-serif!important;
-}
-div[data-testid="stDataFrame"] div,
-div[data-testid="stDataFrame"] [role="grid"],
-div[data-testid="stDataFrame"] [role="row"],
-div[data-testid="stDataFrame"] [role="gridcell"],
-div[data-testid="stDataFrame"] [role="columnheader"] {
-    background-color:#05070d!important;
-    color:#e9ebef!important;
-    border-color:rgba(255,255,255,.055)!important;
-}
-div[data-testid="stDataFrame"] [role="columnheader"] {
-    color:#8e8e93!important;
-    font-size:.74rem!important;
-    font-weight:760!important;
-    letter-spacing:.035em!important;
-    text-transform:uppercase!important;
-}
-
-@media (max-width:900px){
-    .block-container{padding:3.4rem 1.5rem 2.4rem!important;}
-    .hero{display:block;}
-    .top-stats{margin-top:1.2rem;}
-    .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));}
-    .title-wrap h1{font-size:2.45rem;}
-}
-@media (max-width:640px){
-    .summary-grid,.stage-strip{grid-template-columns:1fr;}
-    .title-wrap h1{font-size:2.05rem;}
-}
+.signal-table-wrap { margin-top: 1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; overflow-x:auto; }
+.signal-table { width:100%; border-collapse:collapse; min-width:920px; font-family:'DM Sans', sans-serif; }
+.signal-table thead th { padding:13px 14px; text-align:left; color:#8e8e93; font-size:.72rem; font-weight:760; letter-spacing:.055em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.075); background:#05070d; }
+.signal-table tbody td { padding:14px; color:#e9ebef; font-size:.88rem; font-weight:560; border-bottom:1px solid rgba(255,255,255,.055); background:#05070d; vertical-align:middle; }
+.signal-table tbody tr:hover td { background:#0b0f18; }
+.signal-table .ticker { font-family:'DM Mono', monospace; color:#f5f5f7; font-weight:500; }
+.signal-table .num { font-family:'DM Mono', monospace; color:#d7dce5; font-weight:500; white-space:nowrap; }
+.signal-table .muted { color:#8e8e93; }
+.signal-badge { display:inline-flex; align-items:center; border-radius:999px; padding:5px 10px; font-size:.76rem; font-weight:760; border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.045); color:#e9ebef; white-space:nowrap; }
+.signal-badge.strong { background:rgba(255,107,122,.12); color:#ffb6bf; border-color:rgba(255,107,122,.22); }
+.type-badge { color:#9fb6d9; font-size:.78rem; font-weight:720; }
+.puddle-text { color:#b7bcc7; max-width:330px; }
+.empty-note { color:#8e8e93; padding:1.2rem 0; }
+@media (max-width:900px){ .block-container{padding:3.4rem 1.5rem 2.4rem!important;} .hero{display:block;} .top-stats{margin-top:1.2rem;} .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));} .title-wrap h1{font-size:2.45rem;} }
+@media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} }
 </style>
 """
 
@@ -189,20 +125,37 @@ def parse_stage(puddle) -> str:
             return stage
     return "Other"
 
-def prepare_display_table(df: pd.DataFrame) -> pd.DataFrame:
+def safe_num(value, suffix="") -> str:
+    try:
+        return f"{float(value):.2f}{suffix}"
+    except Exception:
+        return "--"
+
+def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
-        return df
-    out = df.copy()
-    preferred = ["asset_type", "universe", "ticker", "signal", "close", "change_pct", "rsi", "puddle", "date"]
-    out = out[[c for c in preferred if c in out.columns]]
-    out = out.rename(columns={
-        "asset_type": "Type", "universe": "Universe", "ticker": "Ticker", "signal": "Signal",
-        "close": "Close", "change_pct": "Change %", "rsi": "RSI", "puddle": "Puddle", "date": "Price Date"
-    })
-    for col in ["Close", "Change %", "RSI"]:
-        if col in out.columns:
-            out[col] = pd.to_numeric(out[col], errors="coerce").round(2)
-    return out
+        return "<div class='signal-table-wrap'><div class='empty-note'>No signals match the selected filters.</div></div>"
+    rows = []
+    for _, row in df.iterrows():
+        signal = str(row.get("signal", ""))
+        strong = "strong" if signal == "RSI & Puddle" else ""
+        rows.append(
+            "<tr>"
+            f"<td><span class='type-badge'>{escape(str(row.get('asset_type','')))}</span></td>"
+            f"<td class='muted'>{escape(str(row.get('universe','')))}</td>"
+            f"<td><span class='ticker'>{escape(str(row.get('ticker','')))}</span></td>"
+            f"<td><span class='signal-badge {strong}'>{escape(signal)}</span></td>"
+            f"<td class='num'>{safe_num(row.get('close'))}</td>"
+            f"<td class='num'>{safe_num(row.get('change_pct'), '%')}</td>"
+            f"<td class='num'>{safe_num(row.get('rsi'))}</td>"
+            f"<td class='puddle-text'>{escape(str(row.get('puddle','')))}</td>"
+            "</tr>"
+        )
+    return """
+    <div class='signal-table-wrap'>
+      <table class='signal-table'>
+        <thead><tr><th>Type</th><th>Universe</th><th>Ticker</th><th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th></tr></thead>
+        <tbody>
+    """ + "".join(rows) + "</tbody></table></div>"
 
 def main() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
@@ -289,7 +242,7 @@ def main() -> None:
         filtered = filtered[filtered["ticker"].str.contains(query.strip(), case=False, na=False)]
 
     st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Signal List</span></div>", unsafe_allow_html=True)
-    st.dataframe(prepare_display_table(filtered), use_container_width=True, hide_index=True, height=560)
+    st.markdown(render_signal_table(filtered), unsafe_allow_html=True)
     st.download_button("Download selected CSV", data=filtered.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
 
 if __name__ == "__main__":
