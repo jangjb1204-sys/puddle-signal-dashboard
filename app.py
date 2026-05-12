@@ -11,6 +11,7 @@ import streamlit as st
 APP_DIR = Path(__file__).resolve().parent
 SCAN_DIR = APP_DIR / "signal_scans"
 THREADS_URL = "https://www.threads.net/@30s_tech_j"
+CACHE_TTL_SECONDS = 60
 
 st.set_page_config(
     page_title="Puddle Signal Scanner",
@@ -96,7 +97,7 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
 </style>
 """
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_SECONDS)
 def list_scan_files() -> pd.DataFrame:
     rows = []
     if not SCAN_DIR.exists():
@@ -107,11 +108,11 @@ def list_scan_files() -> pd.DataFrame:
             scan_date = pd.to_datetime(raw, format="%Y%m%d").date()
         except Exception:
             continue
-        rows.append({"date": scan_date, "path": str(path), "filename": path.name})
-    return pd.DataFrame(rows).sort_values("date") if rows else pd.DataFrame(columns=["date", "path", "filename"])
+        rows.append({"date": scan_date, "path": str(path), "filename": path.name, "mtime_ns": path.stat().st_mtime_ns})
+    return pd.DataFrame(rows).sort_values("date") if rows else pd.DataFrame(columns=["date", "path", "filename", "mtime_ns"])
 
-@st.cache_data(show_spinner=False)
-def load_scan_csv(path: str) -> pd.DataFrame:
+@st.cache_data(show_spinner=False, ttl=CACHE_TTL_SECONDS)
+def load_scan_csv(path: str, mtime_ns: int | None = None) -> pd.DataFrame:
     try:
         df = pd.read_csv(path)
     except Exception:
@@ -216,7 +217,7 @@ def main() -> None:
     current_idx = month_options.index(current_month)
 
     selected_row = file_df[file_df["date"] == selected_date].iloc[-1]
-    df = load_scan_csv(selected_row["path"])
+    df = load_scan_csv(selected_row["path"], int(selected_row.get("mtime_ns", 0)))
 
     scan_time = "--"
     if not df.empty and "scan_timestamp_utc" in df.columns:
