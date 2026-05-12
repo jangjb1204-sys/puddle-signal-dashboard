@@ -72,7 +72,6 @@ html, body, [class*="css"], .stApp {
 .calendar-cell.out { opacity:.28; }
 .calendar-cell.has-data { border-color:rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:#d7dce5; }
 .calendar-cell.selected { background:#d8dde6; color:#111318; border-color:#d8dde6; font-weight:600; }
-.filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin:0 0 .42rem .15rem; }
 .stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:36px!important; padding:0 13px!important; font-size:.78rem!important; font-weight:720!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
 div[data-testid="stDownloadButton"] button { min-height:44px!important; font-size:.82rem!important; margin-top:.8rem!important; }
@@ -178,18 +177,6 @@ def render_signal_table(df: pd.DataFrame) -> str:
         <tbody>
     """ + "".join(rows) + "</tbody></table></div>"
 
-def chip_filter(label: str, options: list[str], key: str) -> str:
-    if key not in st.session_state:
-        st.session_state[key] = options[0]
-    st.markdown(f"<div class='filter-label'>{label}</div>", unsafe_allow_html=True)
-    cols = st.columns([1] * len(options), gap="small")
-    for idx, option in enumerate(options):
-        with cols[idx]:
-            if st.button(option, key=f"{key}-{option}", type="primary" if st.session_state[key] == option else "secondary"):
-                st.session_state[key] = option
-                st.rerun()
-    return st.session_state[key]
-
 def main() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
     file_df = list_scan_files()
@@ -270,22 +257,10 @@ def main() -> None:
             "</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
-    st.markdown("<div class='section-label'>Filter</div>", unsafe_allow_html=True)
-    filter_cols = st.columns([1.15, 1.75, 3.6])
-    with filter_cols[0]:
-        type_filter = chip_filter("Type", ["All", "Stock", "ETF"], "type_filter")
-    with filter_cols[1]:
-        signal_filter = chip_filter("Signal", ["All", "RSI & Puddle", "Puddle"], "signal_filter")
-
-    filtered = df.copy()
-    if type_filter != "All" and "asset_type" in filtered.columns:
-        filtered = filtered[filtered["asset_type"] == type_filter]
-    if signal_filter != "All" and "signal" in filtered.columns:
-        filtered = filtered[filtered["signal"] == signal_filter]
 
     st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Signal List</span></div>", unsafe_allow_html=True)
-    st.markdown(render_signal_table(filtered), unsafe_allow_html=True)
-    st.download_button("Download selected CSV", data=filtered.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
+    st.markdown(render_signal_table(df), unsafe_allow_html=True)
+    st.download_button("Download selected CSV", data=df.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
 
 if __name__ == "__main__":
     main()
