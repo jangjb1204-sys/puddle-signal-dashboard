@@ -69,7 +69,7 @@ html, body, [class*="css"], .stApp {
 .stage .count { margin-top:.45rem; font-family:'DM Mono', monospace; color:#f5f5f7; font-size:1.45rem; }
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
 
-/* Controls: match 30s-tech-j minimal bright input style */
+/* Force dark Streamlit controls */
 div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label {
     color:#8e8e93!important;
     font-size:.76rem!important;
@@ -78,19 +78,32 @@ div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label {
     text-transform:uppercase!important;
     margin-bottom:.45rem!important;
 }
-div[data-baseweb="select"] > div, div[data-testid="stTextInput"] [data-baseweb="input"] {
-    background: linear-gradient(180deg, #f4f7fc 0%, #e5eaf3 100%) !important;
-    border: 1px solid rgba(255,255,255,.18) !important;
-    border-radius: 16px !important;
-    min-height: 58px !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 18px 42px rgba(0,0,0,.16) !important;
+div[data-baseweb="select"] > div,
+div[data-testid="stTextInput"] [data-baseweb="input"],
+div[data-testid="stTextInput"] input,
+input {
+    background:#0f1117!important;
+    color:#f5f5f7!important;
+    border-color:rgba(255,255,255,.10)!important;
 }
-div[data-baseweb="select"] span, div[data-testid="stTextInput"] input {
-    color:#12151b!important;
-    font-weight:720!important;
+div[data-baseweb="select"] > div,
+div[data-testid="stTextInput"] [data-baseweb="input"] {
+    border:1px solid rgba(255,255,255,.10)!important;
+    border-radius:16px!important;
+    min-height:58px!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div,
+div[data-testid="stTextInput"] input {
+    color:#f5f5f7!important;
     font-family:'DM Sans', sans-serif!important;
+    font-weight:680!important;
 }
-div[data-testid="stTextInput"] input::placeholder { color:rgba(22,25,31,.28)!important; }
+div[data-testid="stTextInput"] input::placeholder { color:rgba(245,245,247,.22)!important; }
+div[data-baseweb="popover"], div[data-baseweb="menu"] { background:#11141b!important; color:#f5f5f7!important; }
+li[role="option"] { background:#11141b!important; color:#f5f5f7!important; }
+li[role="option"]:hover { background:#1b202b!important; }
 .stButton > button {
     border-radius:999px!important;
     border:1px solid rgba(255,255,255,.08)!important;
@@ -102,38 +115,30 @@ div[data-testid="stTextInput"] input::placeholder { color:rgba(22,25,31,.28)!imp
 }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
 
-/* Dataframe polish */
+/* Make dataframe darker. Streamlit may render parts in a shadow DOM/canvas, but this covers visible wrappers. */
 div[data-testid="stDataFrame"] {
     border-top:1px solid rgba(255,255,255,.08);
     padding-top:1.2rem;
+    color:#f5f5f7!important;
 }
 div[data-testid="stDataFrame"] * {
-    font-family:'DM Sans', sans-serif !important;
+    font-family:'DM Sans', sans-serif!important;
 }
-div[data-testid="stDataFrame"] [role="grid"] {
-    background:#05070d !important;
-    border:1px solid rgba(255,255,255,.07) !important;
-    border-radius:18px !important;
-    overflow:hidden !important;
+div[data-testid="stDataFrame"] div,
+div[data-testid="stDataFrame"] [role="grid"],
+div[data-testid="stDataFrame"] [role="row"],
+div[data-testid="stDataFrame"] [role="gridcell"],
+div[data-testid="stDataFrame"] [role="columnheader"] {
+    background-color:#05070d!important;
+    color:#e9ebef!important;
+    border-color:rgba(255,255,255,.055)!important;
 }
 div[data-testid="stDataFrame"] [role="columnheader"] {
-    background:#070a11 !important;
-    color:#8e8e93 !important;
-    font-size:.74rem !important;
-    font-weight:760 !important;
-    letter-spacing:.035em !important;
-    text-transform:uppercase !important;
-}
-div[data-testid="stDataFrame"] [role="gridcell"] {
-    color:#e7e9ee !important;
-    font-size:.86rem !important;
-    border-color:rgba(255,255,255,.045) !important;
-}
-div[data-testid="stDataFrame"] [role="row"] {
-    background:#05070d !important;
-}
-div[data-testid="stDataFrame"] [role="row"]:hover {
-    background:#0b0f18 !important;
+    color:#8e8e93!important;
+    font-size:.74rem!important;
+    font-weight:760!important;
+    letter-spacing:.035em!important;
+    text-transform:uppercase!important;
 }
 
 @media (max-width:900px){
