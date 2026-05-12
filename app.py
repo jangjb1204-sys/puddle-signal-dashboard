@@ -72,11 +72,10 @@ html, body, [class*="css"], .stApp {
 .calendar-cell.out { opacity:.28; }
 .calendar-cell.has-data { border-color:rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:#d7dce5; }
 .calendar-cell.selected { background:#d8dde6; color:#111318; border-color:#d8dde6; font-weight:600; }
-.filter-row { display:flex; flex-wrap:wrap; gap:10px; margin:.35rem 0 1.1rem; }
-.filter-group { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-right:22px; }
-.filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin-right:2px; }
-.stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:44px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
+.filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin:0 0 .42rem .15rem; }
+.stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:36px!important; padding:0 13px!important; font-size:.78rem!important; font-weight:720!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
+div[data-testid="stDownloadButton"] button { min-height:44px!important; font-size:.82rem!important; margin-top:.8rem!important; }
 .signal-table-wrap { margin-top: 1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; overflow-x:auto; }
 .signal-table { width:100%; border-collapse:collapse; min-width:920px; font-family:'DM Sans', sans-serif; }
 .signal-table thead th { padding:13px 14px; text-align:left; color:#8e8e93; font-size:.72rem; font-weight:760; letter-spacing:.055em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.075); background:#05070d; }
@@ -272,7 +271,7 @@ def main() -> None:
 
     st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
     st.markdown("<div class='section-label'>Filter</div>", unsafe_allow_html=True)
-    filter_cols = st.columns([1.2, 1.8, 3])
+    filter_cols = st.columns([1.55, 2.15, 2.9])
     with filter_cols[0]:
         type_filter = chip_filter("Type", ["All", "Stock", "ETF"], "type_filter")
     with filter_cols[1]:
