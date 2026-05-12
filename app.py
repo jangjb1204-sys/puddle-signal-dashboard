@@ -64,7 +64,6 @@ html, body, [class*="css"], .stApp {
 .stage .name { color:#e9ebef; font-weight:760; font-size:.95rem; }
 .stage .count { margin-top:.45rem; font-family:'DM Mono', monospace; color:#f5f5f7; font-size:1.45rem; }
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
-
 .calendar-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:.2rem 0 .9rem; }
 .calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; text-align:center; }
 .calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:1.25rem; }
@@ -73,24 +72,11 @@ html, body, [class*="css"], .stApp {
 .calendar-cell.out { opacity:.28; }
 .calendar-cell.has-data { border-color:rgba(255,255,255,.10); background:rgba(255,255,255,.04); color:#d7dce5; }
 .calendar-cell.selected { background:#d8dde6; color:#111318; border-color:#d8dde6; font-weight:600; }
-.month-nav-spacer { height:.25rem; }
-
-/* Controls */
-div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:#8e8e93!important; font-size:.76rem!important; font-weight:760!important; letter-spacing:.06em!important; text-transform:uppercase!important; }
-div[data-baseweb="select"] > div,
-div[data-testid="stTextInput"] > div,
-div[data-testid="stTextInput"] [data-baseweb="input"] { background:rgba(255,255,255,.045)!important; border:1px solid rgba(255,255,255,.09)!important; border-radius:14px!important; min-height:56px!important; box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important; }
-div[data-testid="stTextInput"] input,
-div[data-testid="stTextInput"] input[type="text"],
-div[data-testid="stTextInput"] [data-baseweb="input"] input { background:transparent!important; color:#f5f5f7!important; -webkit-text-fill-color:#f5f5f7!important; caret-color:#f5f5f7!important; font-family:'DM Sans', sans-serif!important; font-weight:700!important; }
-div[data-baseweb="select"] span, div[data-baseweb="select"] div { color:#f5f5f7!important; font-family:'DM Sans', sans-serif!important; font-weight:700!important; }
-div[data-testid="stTextInput"] input::placeholder { color:rgba(245,245,247,.25)!important; -webkit-text-fill-color:rgba(245,245,247,.25)!important; }
-div[data-baseweb="popover"], div[data-baseweb="menu"] { background:#11141b!important; color:#f5f5f7!important; }
-li[role="option"] { background:#11141b!important; color:#f5f5f7!important; }
-li[role="option"]:hover { background:#1b202b!important; }
-.stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:46px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
+.filter-row { display:flex; flex-wrap:wrap; gap:10px; margin:.35rem 0 1.1rem; }
+.filter-group { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-right:22px; }
+.filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin-right:2px; }
+.stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:44px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
-
 .signal-table-wrap { margin-top: 1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; overflow-x:auto; }
 .signal-table { width:100%; border-collapse:collapse; min-width:920px; font-family:'DM Sans', sans-serif; }
 .signal-table thead th { padding:13px 14px; text-align:left; color:#8e8e93; font-size:.72rem; font-weight:760; letter-spacing:.055em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.075); background:#05070d; }
@@ -193,6 +179,18 @@ def render_signal_table(df: pd.DataFrame) -> str:
         <tbody>
     """ + "".join(rows) + "</tbody></table></div>"
 
+def chip_filter(label: str, options: list[str], key: str) -> str:
+    if key not in st.session_state:
+        st.session_state[key] = options[0]
+    st.markdown(f"<div class='filter-label'>{label}</div>", unsafe_allow_html=True)
+    cols = st.columns(len(options))
+    for idx, option in enumerate(options):
+        with cols[idx]:
+            if st.button(option, key=f"{key}-{option}", type="primary" if st.session_state[key] == option else "secondary"):
+                st.session_state[key] = option
+                st.rerun()
+    return st.session_state[key]
+
 def main() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
     file_df = list_scan_files()
@@ -274,18 +272,17 @@ def main() -> None:
 
     st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
     st.markdown("<div class='section-label'>Filter</div>", unsafe_allow_html=True)
-    f1, f2, f3 = st.columns([1, 1, 2.1])
-    type_filter = f1.selectbox("Type", ["All", "Stock", "ETF"])
-    signal_filter = f2.selectbox("Signal", ["All", "RSI & Puddle", "Puddle"])
-    query = f3.text_input("Search", placeholder="Ticker, e.g. AAPL, NVDA, QQQ")
+    filter_cols = st.columns([1.2, 1.8, 3])
+    with filter_cols[0]:
+        type_filter = chip_filter("Type", ["All", "Stock", "ETF"], "type_filter")
+    with filter_cols[1]:
+        signal_filter = chip_filter("Signal", ["All", "RSI & Puddle", "Puddle"], "signal_filter")
 
     filtered = df.copy()
     if type_filter != "All" and "asset_type" in filtered.columns:
         filtered = filtered[filtered["asset_type"] == type_filter]
     if signal_filter != "All" and "signal" in filtered.columns:
         filtered = filtered[filtered["signal"] == signal_filter]
-    if query and "ticker" in filtered.columns:
-        filtered = filtered[filtered["ticker"].str.contains(query.strip(), case=False, na=False)]
 
     st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Signal List</span></div>", unsafe_allow_html=True)
     st.markdown(render_signal_table(filtered), unsafe_allow_html=True)
