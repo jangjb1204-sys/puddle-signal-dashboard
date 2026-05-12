@@ -343,36 +343,10 @@ def calculate_rsi(data: pd.DataFrame, window: int = 14) -> pd.Series:
     return (100 - (100 / (1 + rs))).round(2)
 
 
-def calculate_stochastic_slow(data: pd.DataFrame, n: int = 14, m: int = 3, t: int = 3):
-    if len(data) < n:
-        nan_s = pd.Series([np.nan] * len(data), index=data.index)
-        return nan_s, nan_s.copy()
-    low_min = data["Low"].rolling(window=n).min()
-    high_max = data["High"].rolling(window=n).max()
-    k_fast = 100 * ((data["Close"] - low_min) / (high_max - low_min))
-    slow_k = k_fast.rolling(window=m).mean().round(2)
-    slow_d = slow_k.rolling(window=t).mean().round(2)
-    return slow_k, slow_d
-
-
 def calculate_moving_averages(data: pd.DataFrame, windows: list[int] | None = None) -> pd.DataFrame:
     windows = windows or [20, 60, 120, 200]
     for window in windows:
         data[f"MA{window}"] = data["Close"].rolling(window=window).mean().round(2) if len(data) >= window else np.nan
-    return data
-
-
-def generate_stochastic_signals(data: pd.DataFrame) -> pd.DataFrame:
-    data["SS Signal"] = ""
-    if "Slow_K" in data.columns and "Slow_D" in data.columns:
-        data.loc[
-            (data["Slow_K"].shift(1) < data["Slow_D"].shift(1)) & (data["Slow_K"] > data["Slow_D"]),
-            "SS Signal",
-        ] = "Buy"
-        data.loc[
-            (data["Slow_K"].shift(1) > data["Slow_D"].shift(1)) & (data["Slow_K"] < data["Slow_D"]),
-            "SS Signal",
-        ] = "Sell"
     return data
 
 
@@ -451,7 +425,6 @@ def process_stock_frame(data: pd.DataFrame, ticker: str, common_data: dict) -> p
 
     data = calculate_moving_averages(data)
     data["RSI"] = calculate_rsi(data)
-    data["Slow_K"], data["Slow_D"] = calculate_stochastic_slow(data)
 
     for df_extra in [
         common_data.get("treasury"),
@@ -462,7 +435,6 @@ def process_stock_frame(data: pd.DataFrame, ticker: str, common_data: dict) -> p
         if df_extra is not None and not df_extra.empty:
             data = pd.merge(data, df_extra, on="Date", how="left")
 
-    data = generate_stochastic_signals(data)
     data = generate_puddle_signals(data)
     data = calculate_vix_skew_signals(data)
     data["Tick"] = ticker
