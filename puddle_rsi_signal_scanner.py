@@ -1,14 +1,12 @@
 """
-Single-file prototype scanner for Puddle and RSI & Puddle signals.
+Standalone scanner for Puddle and RSI & Puddle signals.
 
-This script is intentionally independent from the Streamlit dashboard. It does
-not import main.py or stock_analyzer.py, so it can be copied and run as one
-standalone Python file.
+GitHub Actions runs this script on a schedule and commits timestamped CSV files.
 
 Examples:
-    python signal_scanner_prototype.py --date 2026-05-11
+    python puddle_rsi_signal_scanner.py --date 2026-05-11
 
-    python signal_scanner_prototype.py \
+    python puddle_rsi_signal_scanner.py \
         --date 2026-05-11 \
         --stocks-csv stocks.csv \
         --etfs-csv etfs.csv \
@@ -26,6 +24,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from datetime import datetime, timezone
 from io import StringIO
 from pathlib import Path
 from typing import Iterable
@@ -38,7 +37,6 @@ import yfinance as yf
 pd.set_option("future.no_silent_downcasting", True)
 
 
-DATE_FORMAT = "%Y-%m-%d"
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
@@ -53,6 +51,7 @@ CACHE_DIR = Path(__file__).resolve().parent / ".puddle_yf_cache"
 CACHE_MAX_HOURS = 0.0
 REFRESH_CACHE = False
 UNIVERSE_CACHE_FILENAME = "ticker_universe.json"
+OUTPUT_DIR = Path(__file__).resolve().parent / "signal_scans"
 
 
 class YahooRateLimitError(RuntimeError):
@@ -136,11 +135,7 @@ def extract_tickers_from_html_table(url: str, limit: int) -> list[str]:
     tables = pd.read_html(StringIO(response.text))
     for table in tables:
         lower_cols = {str(col).strip().lower(): col for col in table.columns}
-        ticker_col = (
-            lower_cols.get("symbol")
-            or lower_cols.get("ticker")
-            or lower_cols.get("fund")
-        )
+        ticker_col = lower_cols.get("symbol") or lower_cols.get("ticker") or lower_cols.get("fund")
         if ticker_col is None:
             continue
 
@@ -476,7 +471,7 @@ def scan_batch(
     common_data: dict,
     progress_start: int = 0,
     progress_total: int | None = None,
-) -> list[dict]:
+) -> tuple[list[dict], bool]:
     raw_frames = fetch_batch_stock_data(
         tickers,
         period=period,
@@ -567,6 +562,7 @@ def scan_universe(
                 time.sleep(pause_seconds)
 
     columns = [
+        "scan_timestamp_utc",
         "date",
         "asset_type",
         "ticker",
@@ -584,14 +580,19 @@ def scan_universe(
     signal_rank = {"RSI & Puddle": 0, "Puddle": 1}
     df["_rank"] = df["signal"].map(signal_rank).fillna(99)
     df = df.sort_values(["date", "_rank", "asset_type", "ticker"], ascending=[False, True, True, True])
-    return df.drop(columns=["_rank"]).reset_index(drop=True)[columns]
+    return df.drop(columns=["_rank"]).reset_index(drop=True)
+
+
+def timestamped_output_path(scan_timestamp: datetime) -> Path:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    return OUTPUT_DIR / f"signal_scan_{scan_timestamp:%Y%m%d_%H%M}_UTC.csv"
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Scan top stocks and ETFs for Puddle / RSI & Puddle signals."
     )
-    parser.add_argument("--date", help="Scan date in YYYY-MM-DD. Defaults to today.")
+    parser.add_argument("--date", help="Scan date in YYYY-MM-DD. Defaults to today UTC.")
     parser.add_argument("--period", default="2y", help="Historical download period. Default: 2y.")
     parser.add_argument("--stock-limit", type=int, default=100, help="Number of stock tickers.")
     parser.add_argument("--etf-limit", type=int, default=100, help="Number of ETF tickers.")
@@ -605,7 +606,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cache-dir", default=str(CACHE_DIR), help="Directory for cached Yahoo price data.")
     parser.add_argument("--cache-max-hours", type=float, default=CACHE_MAX_HOURS, help="Use cache files newer than this many hours. Use 0 to never expire.")
     parser.add_argument("--refresh-cache", action="store_true", help="Ignore cached Yahoo data and download again.")
-    parser.add_argument("--output", help="Optional CSV output path.")
+    parser.add_argument("--output", help="Optional CSV output path. Defaults to signal_scans/signal_scan_YYYYMMDD_HHMM_UTC.csv.")
     return parser.parse_args()
 
 
@@ -614,13 +615,15 @@ def main() -> None:
     global CACHE_DIR, CACHE_MAX_HOURS, REFRESH_CACHE
 
     args = parse_args()
+    scan_timestamp = datetime.now(timezone.utc).replace(second=0, microsecond=0)
     YF_REQUEST_PAUSE_SECONDS = max(0.0, args.request_pause)
     YF_RETRIES = max(0, args.retries)
     YF_RETRY_PAUSE_SECONDS = max(0.0, args.retry_pause)
     CACHE_DIR = Path(args.cache_dir).expanduser()
     CACHE_MAX_HOURS = max(0.0, args.cache_max_hours)
     REFRESH_CACHE = bool(args.refresh_cache)
-    target_date = pd.Timestamp(args.date or pd.Timestamp.today().date()).normalize()
+    target_date = pd.Timestamp(args.date or scan_timestamp.date()).normalize()
+    print(f"Scan timestamp UTC: {scan_timestamp.isoformat()}", flush=True)
     print(f"Yahoo cache: {CACHE_DIR}", flush=True)
 
     stock_tickers, etf_tickers = load_universe(
@@ -652,16 +655,16 @@ def main() -> None:
             "빠른 테스트는 --stock-limit 2 --etf-limit 2 처럼 작은 범위로 먼저 해보는 게 좋습니다."
         ) from exc
 
-    output_path = Path(args.output or f"signal_scan_{target_date:%Y%m%d}.csv")
-    csv_text = result.to_csv(index=False)
-    output_changed = not output_path.exists() or output_path.read_text() != csv_text
-    if output_changed:
-        output_path.write_text(csv_text)
+    result.insert(0, "scan_timestamp_utc", scan_timestamp.isoformat())
+
+    output_path = Path(args.output) if args.output else timestamped_output_path(scan_timestamp)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(result.to_csv(index=False))
 
     print(f"Scanned stocks: {len(stock_tickers)}")
     print(f"Scanned ETFs:   {len(etf_tickers)}")
     print(f"Signals found:  {len(result)}")
-    print(f"Saved:          {output_path}" if output_changed else f"Unchanged:      {output_path}")
+    print(f"Saved:          {output_path}")
     if not result.empty:
         print()
         print(result.to_string(index=False))
