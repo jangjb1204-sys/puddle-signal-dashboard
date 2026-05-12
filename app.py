@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import contextlib
-import io
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
-import puddle_rsi_signal_scanner as scanner
-
 
 APP_DIR = Path(__file__).resolve().parent
+REPO_URL = "https://github.com/jangjb1204-sys/puddle-signal-dashboard"
+ACTIONS_URL = f"{REPO_URL}/actions/workflows/update-signals.yml"
 
 
 def output_path_for(target_date: pd.Timestamp) -> Path:
@@ -118,43 +116,6 @@ def load_existing_result(target_date: pd.Timestamp) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def run_scan(
-    target_date: pd.Timestamp,
-    stock_limit: int,
-    etf_limit: int,
-    refresh_cache: bool,
-    cache_max_hours: float,
-) -> tuple[pd.DataFrame, str, Path]:
-    scanner.CACHE_DIR = APP_DIR / ".puddle_yf_cache"
-    scanner.CACHE_MAX_HOURS = max(0.0, cache_max_hours)
-    scanner.REFRESH_CACHE = refresh_cache
-
-    stock_tickers, etf_tickers = scanner.load_universe(
-        stocks_csv=None,
-        etfs_csv=None,
-        stock_limit=stock_limit,
-        etf_limit=etf_limit,
-    )
-
-    log_buffer = io.StringIO()
-    with contextlib.redirect_stdout(log_buffer):
-        result = scanner.scan_universe(
-            stock_tickers=stock_tickers,
-            etf_tickers=etf_tickers,
-            target_date=target_date,
-            period="2y",
-            batch_size=1,
-            pause_seconds=1.0,
-        )
-
-    output_path = output_path_for(target_date)
-    csv_text = result.to_csv(index=False)
-    if not output_path.exists() or output_path.read_text() != csv_text:
-        output_path.write_text(csv_text)
-
-    return result, log_buffer.getvalue(), output_path
-
-
 def format_table(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
@@ -185,20 +146,10 @@ def main() -> None:
     )
 
     with st.sidebar:
-        st.markdown("### Scan")
+        st.markdown("### Data")
         selected_date = st.date_input("Date", value=default_date.date())
-        stock_limit = st.number_input("Stock limit", min_value=1, max_value=500, value=100, step=10)
-        etf_limit = st.number_input("ETF limit", min_value=1, max_value=500, value=100, step=10)
-        cache_max_hours = st.number_input(
-            "Cache expiry hours",
-            min_value=0.0,
-            max_value=720.0,
-            value=0.0,
-            step=24.0,
-            help="0이면 캐시를 만료시키지 않습니다.",
-        )
-        refresh_cache = st.toggle("Refresh cache", value=False)
-        run_clicked = st.button("Run scan", type="primary", use_container_width=True)
+        st.link_button("Update on GitHub", ACTIONS_URL, use_container_width=True)
+        st.caption("데이터 업데이트는 GitHub Actions에서 실행하고, 이 앱은 저장된 CSV를 빠르게 표시합니다.")
 
     target_date = pd.Timestamp(selected_date).normalize()
 
@@ -206,26 +157,7 @@ def main() -> None:
         existing = load_existing_result(target_date)
         st.session_state.result = existing
         st.session_state.output_path = output_path_for(target_date)
-        st.session_state.log = ""
         st.session_state.target_date = str(target_date.date())
-
-    if run_clicked:
-        with st.status("Scanning universe...", expanded=True) as status:
-            try:
-                result, log_text, output_path = run_scan(
-                    target_date=target_date,
-                    stock_limit=int(stock_limit),
-                    etf_limit=int(etf_limit),
-                    refresh_cache=refresh_cache,
-                    cache_max_hours=float(cache_max_hours),
-                )
-                st.session_state.result = result
-                st.session_state.output_path = output_path
-                st.session_state.log = log_text
-                status.update(label="Scan complete", state="complete", expanded=False)
-            except scanner.YahooRateLimitError as exc:
-                status.update(label="Yahoo rate limit", state="error", expanded=True)
-                st.error(f"Yahoo Finance rate limit에 걸렸습니다: {exc}")
 
     result = st.session_state.get("result", pd.DataFrame())
     output_path = st.session_state.get("output_path", output_path_for(target_date))
@@ -245,7 +177,7 @@ def main() -> None:
 
     if result.empty:
         st.markdown(
-            '<div class="status-note">저장된 결과가 없거나 해당 날짜에 신호가 없습니다. GitHub Actions가 만든 최신 CSV가 있으면 자동으로 먼저 표시됩니다.</div>',
+            '<div class="status-note">저장된 결과가 없거나 해당 날짜에 신호가 없습니다. 왼쪽의 Update on GitHub에서 workflow를 실행하면 CSV가 repo에 저장됩니다.</div>',
             unsafe_allow_html=True,
         )
     else:
@@ -294,12 +226,10 @@ def main() -> None:
             mime="text/csv",
         )
 
-    with st.expander("Run log", expanded=False):
-        log_text = st.session_state.get("log", "")
-        if log_text:
-            st.code(log_text[-12000:])
-        else:
-            st.write("No scan log yet.")
+    with st.expander("Data source", expanded=False):
+        st.write(f"Repository: {REPO_URL}")
+        st.write(f"Selected file: {output_path.name}")
+        st.write("GitHub Actions updates and commits `signal_scan_YYYYMMDD.csv` files.")
 
 
 if __name__ == "__main__":
