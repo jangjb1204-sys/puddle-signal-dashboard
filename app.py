@@ -22,192 +22,251 @@ CSS = """
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
 html, body, [class*="css"], .stApp {
     font-family: 'DM Sans', sans-serif !important;
-    background:
-        radial-gradient(circle at 18% 10%, rgba(100,168,255,0.20), transparent 26%),
-        radial-gradient(circle at 82% 4%, rgba(156,204,255,0.14), transparent 30%),
-        linear-gradient(180deg, #091b31 0%, #061323 44%, #020711 100%) !important;
+    background: #03050a !important;
     color: #f5f5f7 !important;
 }
 .stApp::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background: linear-gradient(112deg, transparent 0%, rgba(235,247,255,0.12) 18%, transparent 36%), linear-gradient(75deg, transparent 52%, rgba(86,154,255,0.09) 72%, transparent 90%);
-    opacity: .74; mix-blend-mode: screen;
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 12% 0%, rgba(40,92,160,0.18), transparent 30%),
+        radial-gradient(circle at 88% 2%, rgba(50,105,190,0.10), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), transparent 38%);
+    opacity: .9;
 }
-#MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="stHeader"] { display:none!important; visibility:hidden!important; height:0!important; }
-.block-container { padding-top: 1.25rem!important; padding-bottom: 2.5rem!important; max-width: 1360px; position:relative; z-index:1; }
-.app-hero, .glass-card {
-    border: 1px solid rgba(190,220,255,0.20);
-    background: linear-gradient(145deg, rgba(241,248,255,0.14), rgba(255,255,255,0.04) 54%, rgba(117,181,255,0.03)), rgba(7,23,42,0.56);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), inset 0 -1px 0 rgba(255,255,255,0.05), 0 18px 54px rgba(0,0,0,0.22);
-    backdrop-filter: blur(28px) saturate(1.5); -webkit-backdrop-filter: blur(28px) saturate(1.5);
+#MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], [data-testid="stHeader"], [data-testid="collapsedControl"] {
+    display:none!important; visibility:hidden!important; height:0!important;
 }
-.app-hero { position:relative; overflow:hidden; margin:.2rem 0 1.05rem; padding:1.28rem 1.36rem 1.2rem; border-radius:30px; }
-.app-hero::before { content:""; position:absolute; left:22px; right:22px; top:0; height:1px; background:linear-gradient(90deg, transparent, rgba(255,255,255,.58), transparent); }
-.hero-row { position:relative; z-index:1; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-.app-hero h1 { margin:0; font-size:2.42rem!important; line-height:1.08; font-weight:760!important; color:#f7fbff!important; text-shadow:0 12px 34px rgba(0,0,0,.28); }
-.app-hero p { margin:.45rem 0 0; color:rgba(207,228,255,.68); font-size:.9rem; }
-.hero-meta { position:relative; z-index:1; display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-.pill { display:inline-flex; align-items:center; gap:9px; padding:8px 13px; border:1px solid rgba(190,220,255,.22); border-radius:999px; background:linear-gradient(135deg, rgba(231,246,255,.14), rgba(255,255,255,.035)), rgba(7,24,43,.56); color:rgba(226,240,255,.72); font-size:.76rem; box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 12px 32px rgba(0,0,0,.14); }
-.pill strong { color:#9cccff; font-weight:750; }
-.section-label { color:rgba(207,228,255,.64); font-size:.8rem; font-weight:700; margin:1.15rem 0 .48rem; }
-.metric-grid, .stage-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:.75rem 0 1rem; }
-.glass-card { position:relative; overflow:hidden; padding:16px 17px; border-radius:24px; }
-.metric-card .label { color:rgba(207,228,255,.60); font-size:.72rem; font-weight:700; margin-bottom:9px; }
-.metric-card .value { font-family:'DM Mono', monospace; font-size:1.58rem; font-weight:500; color:#f7fbff; }
-.metric-card .hint { margin-top:7px; color:rgba(207,228,255,.48); font-size:.76rem; }
-.stage-card { min-height:120px; }
-.stage-title { display:flex; align-items:center; gap:8px; color:#f7fbff; font-size:1.02rem; font-weight:750; margin-bottom:10px; }
-.dot { width:8px; height:8px; border-radius:999px; background:#9cccff; box-shadow:0 0 18px rgba(156,204,255,.55); }
-.dot.blue{background:#64a8ff}.dot.yellow{background:#ffd166;box-shadow:0 0 18px rgba(255,209,102,.45)}.dot.red{background:#ff6b7a;box-shadow:0 0 18px rgba(255,107,122,.5)}
-.stage-row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-top:1px solid rgba(255,255,255,.08); color:rgba(235,244,255,.86); font-size:.84rem; }
-.stage-row:first-of-type { border-top:none; }
-.mono { font-family:'DM Mono', monospace; color:rgba(207,228,255,.58); }
-.date-strip { display:flex; gap:8px; overflow-x:auto; padding:10px 2px 12px; scrollbar-width:none; }
-.date-chip { min-width:82px; padding:10px 12px; border:1px solid rgba(190,220,255,.17); border-radius:18px; background:rgba(7,23,42,.44); color:rgba(226,240,255,.72); text-align:center; }
-.date-chip .day { font-family:'DM Mono', monospace; font-size:1.05rem; color:#f7fbff; }
-.date-chip .month { font-size:.68rem; color:rgba(207,228,255,.48); }
-.filter-card { padding:14px 16px; margin-bottom:12px; }
-div[data-testid="stDataFrame"] { border-radius:24px!important; overflow:hidden!important; border:1px solid rgba(190,220,255,.12); }
-div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:rgba(207,228,255,.64)!important; font-size:.76rem!important; font-weight:650!important; }
-div[data-baseweb="select"] > div, div[data-testid="stTextInput"] [data-baseweb="input"] { background:linear-gradient(135deg, rgba(241,248,255,.12), rgba(255,255,255,.035)), rgba(9,28,50,.72)!important; border:1px solid rgba(190,220,255,.24)!important; border-radius:18px!important; min-height:46px!important; box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 16px 42px rgba(0,0,0,.14)!important; }
-div[data-baseweb="select"] span, div[data-testid="stTextInput"] input { color:#f5f5f7!important; font-weight:600!important; }
-.stButton > button { width:100%; border-radius:16px; border:1px solid rgba(190,220,255,.18); background:rgba(7,23,42,.46); color:rgba(226,240,255,.82); min-height:42px; }
-.stButton > button[kind="primary"] { background:linear-gradient(145deg, rgba(232,246,255,.95), rgba(156,204,255,.76)); color:#071323; border-color:rgba(231,246,255,.86); font-weight:750; }
-@media (max-width:900px){ .metric-grid,.stage-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.app-hero h1{font-size:2rem!important;} }
-@media (max-width:640px){ .metric-grid,.stage-grid{grid-template-columns:1fr;}.block-container{padding-left:1rem!important;padding-right:1rem!important;} }
+.block-container {
+    max-width: 1380px;
+    padding: 4.6rem 3.2rem 3rem !important;
+    position: relative;
+    z-index: 1;
+}
+.hero {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    margin-bottom:2.7rem;
+}
+.title-wrap h1 {
+    margin:0;
+    font-size:2.95rem;
+    line-height:1.04;
+    font-weight:760;
+    letter-spacing:-0.055em;
+    color:#f5f5f7;
+}
+.title-row { display:flex; align-items:center; gap:14px; }
+.status-dot { width:9px; height:9px; border-radius:999px; background:#63f29d; box-shadow:0 0 18px rgba(99,242,157,.42); }
+.subtle { color:#8e8e93; font-size:.88rem; font-weight:600; letter-spacing:.01em; }
+.updated { margin-top:2.1rem; color:#8e8e93; font-size:.76rem; font-weight:760; letter-spacing:.06em; text-transform:uppercase; }
+.updated strong { margin-left:8px; color:#b7bcc7; font-family:'DM Mono', monospace; font-weight:500; }
+.top-stats { display:flex; align-items:center; gap:12px; color:#8e8e93; font-size:.82rem; margin-top:.35rem; white-space:nowrap; }
+.blue-dot { width:8px; height:8px; border-radius:999px; background:#2f70dc; box-shadow:0 0 16px rgba(47,112,220,.45); }
+.top-stats strong { color:#f5f5f7; }
+.section-label { color:#8e8e93; font-size:.78rem; font-weight:760; letter-spacing:.055em; text-transform:uppercase; margin:1.9rem 0 .85rem; }
+.chip-row { display:flex; gap:9px; flex-wrap:wrap; align-items:center; }
+.chip {
+    display:inline-flex; align-items:center; justify-content:center;
+    min-height:47px; padding:0 20px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:999px;
+    background:rgba(255,255,255,.035);
+    color:#f5f5f7;
+    font-size:.86rem;
+    font-weight:740;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+.chip.active { background:#d8dde6; color:#111318; border-color:#d8dde6; }
+.chip.muted { color:#a0a4ad; }
+.divider { height:1px; background:rgba(255,255,255,.08); margin:2.2rem 0 2rem; }
+.summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-top:1.1rem; }
+.summary-item { border-top:1px solid rgba(255,255,255,.08); padding-top:1.35rem; min-height:105px; }
+.summary-item .label { color:#8e8e93; font-size:.75rem; font-weight:760; letter-spacing:.055em; text-transform:uppercase; }
+.summary-item .value { margin-top:.5rem; font-family:'DM Mono', monospace; font-size:2.05rem; color:#f5f5f7; line-height:1; }
+.summary-item .hint { margin-top:.5rem; color:#777b84; font-size:.82rem; }
+.panel-title { display:flex; align-items:center; gap:12px; color:#f5f5f7; font-weight:760; font-size:1.05rem; margin:1.3rem 0 .9rem; }
+.chev { color:#f5f5f7; font-size:1.4rem; line-height:1; }
+.stage-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:1rem 0 1.4rem; }
+.stage { border:1px solid rgba(255,255,255,.075); border-radius:22px; padding:16px 17px; background:rgba(255,255,255,.025); }
+.stage .name { color:#e9ebef; font-weight:760; font-size:.95rem; }
+.stage .count { margin-top:.45rem; font-family:'DM Mono', monospace; color:#f5f5f7; font-size:1.45rem; }
+.stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
+div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:#8e8e93!important; font-size:.78rem!important; font-weight:760!important; letter-spacing:.055em; text-transform:uppercase; }
+div[data-baseweb="select"] > div, div[data-testid="stTextInput"] [data-baseweb="input"] {
+    background:#e9edf5!important;
+    border:0!important;
+    border-radius:14px!important;
+    min-height:60px!important;
+    box-shadow:none!important;
+}
+div[data-baseweb="select"] span { color:#16191f!important; font-weight:720!important; }
+div[data-testid="stTextInput"] input { color:#16191f!important; font-weight:650!important; }
+.stButton > button {
+    border-radius:999px!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    background:rgba(255,255,255,.035)!important;
+    color:#f5f5f7!important;
+    min-height:46px!important;
+    font-weight:740!important;
+}
+.stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
+div[data-testid="stDataFrame"] { border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; }
+.download-wrap { margin-top:1rem; }
+@media (max-width:900px){
+    .block-container{padding:3.4rem 1.5rem 2.4rem!important;}
+    .hero{display:block;}
+    .top-stats{margin-top:1.2rem;}
+    .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .title-wrap h1{font-size:2.45rem;}
+}
+@media (max-width:640px){
+    .summary-grid,.stage-strip{grid-template-columns:1fr;}
+    .title-wrap h1{font-size:2.05rem;}
+}
 </style>
 """
 
 @st.cache_data(show_spinner=False)
 def list_scan_files() -> pd.DataFrame:
-    rows=[]
+    rows = []
     if not SCAN_DIR.exists():
-        return pd.DataFrame(columns=["date","path","filename"])
+        return pd.DataFrame(columns=["date", "path", "filename"])
     for path in sorted(SCAN_DIR.glob("signal_scan_*.csv")):
-        raw=path.stem.replace("signal_scan_","")
+        raw = path.stem.replace("signal_scan_", "")
         try:
-            scan_date=pd.to_datetime(raw,format="%Y%m%d").date()
+            scan_date = pd.to_datetime(raw, format="%Y%m%d").date()
         except Exception:
             continue
-        rows.append({"date":scan_date,"path":str(path),"filename":path.name})
-    return pd.DataFrame(rows).sort_values("date") if rows else pd.DataFrame(columns=["date","path","filename"])
+        rows.append({"date": scan_date, "path": str(path), "filename": path.name})
+    return pd.DataFrame(rows).sort_values("date") if rows else pd.DataFrame(columns=["date", "path", "filename"])
 
 @st.cache_data(show_spinner=False)
-def load_scan_csv(path:str)->pd.DataFrame:
+def load_scan_csv(path: str) -> pd.DataFrame:
     try:
-        df=pd.read_csv(path)
+        df = pd.read_csv(path)
     except Exception:
         return pd.DataFrame()
-    for col in ["close","change_pct","rsi"]:
+    for col in ["close", "change_pct", "rsi"]:
         if col in df.columns:
-            df[col]=pd.to_numeric(df[col],errors="coerce")
+            df[col] = pd.to_numeric(df[col], errors="coerce")
     if "date" in df.columns:
-        df["date"]=pd.to_datetime(df["date"],errors="coerce").dt.date
+        df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date
     return df
 
-def metric_card(label,value,hint=""):
-    return f"<div class='glass-card metric-card'><div class='label'>{label}</div><div class='value'>{value}</div><div class='hint'>{hint}</div></div>"
-
-def parse_stage(puddle):
-    text=str(puddle or "")
-    for stage in ["4th","3rd","2nd","1st"]:
+def parse_stage(puddle) -> str:
+    text = str(puddle or "")
+    for stage in ["4th", "3rd", "2nd", "1st"]:
         if text.startswith(stage):
             return stage
     return "Other"
 
-def stage_card(title,count,subtitle,dot=""):
-    return f"<div class='glass-card stage-card'><div class='stage-title'><span class='dot {dot}'></span>{title}</div><div class='stage-row'><span>Signals</span><span class='mono'>{count}</span></div><div class='stage-row'><span>{subtitle}</span><span class='mono'>active</span></div></div>"
-
-def prepare_display_table(df):
+def prepare_display_table(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
-    out=df.copy()
-    preferred=["asset_type","universe","ticker","signal","close","change_pct","rsi","puddle","date"]
-    out=out[[c for c in preferred if c in out.columns]]
-    out=out.rename(columns={"asset_type":"Type","universe":"Universe","ticker":"Ticker","signal":"Signal","close":"Close","change_pct":"Change %","rsi":"RSI","puddle":"Puddle","date":"Price Date"})
-    for col in ["Close","Change %","RSI"]:
+    out = df.copy()
+    preferred = ["asset_type", "universe", "ticker", "signal", "close", "change_pct", "rsi", "puddle", "date"]
+    out = out[[c for c in preferred if c in out.columns]]
+    out = out.rename(columns={
+        "asset_type": "Type", "universe": "Universe", "ticker": "Ticker", "signal": "Signal",
+        "close": "Close", "change_pct": "Change %", "rsi": "RSI", "puddle": "Puddle", "date": "Price Date"
+    })
+    for col in ["Close", "Change %", "RSI"]:
         if col in out.columns:
-            out[col]=pd.to_numeric(out[col],errors="coerce").round(2)
+            out[col] = pd.to_numeric(out[col], errors="coerce").round(2)
     return out
 
-def main():
+def main() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
-    file_df=list_scan_files()
+    file_df = list_scan_files()
     if file_df.empty:
-        st.markdown("<div class='app-hero'><h1>Puddle Signal Scanner</h1><p>No scan files found yet. Run GitHub Actions first.</p></div>", unsafe_allow_html=True)
+        st.markdown("<div class='title-wrap'><h1>Puddle Signal Scanner</h1></div>", unsafe_allow_html=True)
         st.info("signal_scans 폴더에 CSV가 아직 없습니다.")
         return
 
-    latest_date=file_df["date"].max()
+    latest_date = file_df["date"].max()
     if "selected_scan_date" not in st.session_state:
-        st.session_state.selected_scan_date=latest_date
-    selected_date=st.session_state.selected_scan_date
+        st.session_state.selected_scan_date = latest_date
+    selected_date = st.session_state.selected_scan_date
     if selected_date not in set(file_df["date"].tolist()):
-        selected_date=latest_date
-        st.session_state.selected_scan_date=latest_date
+        selected_date = latest_date
+        st.session_state.selected_scan_date = latest_date
 
-    selected_row=file_df[file_df["date"]==selected_date].iloc[-1]
-    df=load_scan_csv(selected_row["path"])
-    scan_time="Unknown"
+    selected_row = file_df[file_df["date"] == selected_date].iloc[-1]
+    df = load_scan_csv(selected_row["path"])
+
+    scan_time = "--"
     if not df.empty and "scan_timestamp_utc" in df.columns:
-        times=df["scan_timestamp_utc"].dropna()
+        times = df["scan_timestamp_utc"].dropna()
         if not times.empty:
-            scan_time=str(times.iloc[0])
+            scan_time = str(times.iloc[0])[11:16]
 
-    total=len(df)
-    rsi_puddle=int((df.get("signal")=="RSI & Puddle").sum()) if not df.empty and "signal" in df.columns else 0
-    stocks=int((df.get("asset_type")=="Stock").sum()) if not df.empty and "asset_type" in df.columns else 0
-    etfs=int((df.get("asset_type")=="ETF").sum()) if not df.empty and "asset_type" in df.columns else 0
+    total = len(df)
+    rsi_puddle = int((df.get("signal") == "RSI & Puddle").sum()) if not df.empty and "signal" in df.columns else 0
+    stocks = int((df.get("asset_type") == "Stock").sum()) if not df.empty and "asset_type" in df.columns else 0
+    etfs = int((df.get("asset_type") == "ETF").sum()) if not df.empty and "asset_type" in df.columns else 0
 
     st.markdown(f"""
-    <div class='app-hero'>
-      <div class='hero-row'>
-        <div><h1>Puddle Signal Scanner</h1><p>Large-cap stocks and representative ETFs filtered by Puddle and RSI & Puddle signals.</p></div>
-        <div class='pill'><strong>{selected_date}</strong> selected</div>
+    <div class='hero'>
+      <div class='title-wrap'>
+        <div class='title-row'><span class='status-dot'></span><h1>Puddle Signal Scanner</h1></div>
+        <div class='updated'>UPDATED <strong>{scan_time}</strong></div>
       </div>
-      <div class='hero-meta'><div class='pill'>Updated <strong>{scan_time}</strong></div><div class='pill'><strong>{selected_row['filename']}</strong></div></div>
+      <div class='top-stats'><span class='blue-dot'></span><span>Selected <strong>{selected_date}</strong></span><span>·</span><span>Total <strong>{total}</strong></span></div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='metric-grid'>"+metric_card("Total Signals",total,"Puddle + RSI & Puddle")+metric_card("RSI & Puddle",rsi_puddle,"stronger warning")+metric_card("Stocks",stocks,"S&P500 + NASDAQ100")+metric_card("ETFs",etfs,"representative ETF set")+"</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
+    month_options = sorted({d.replace(day=1) for d in file_df["date"]}, reverse=True)
+    selected_month = st.selectbox("Month", month_options, format_func=lambda d: f"{d.year}. {d.month:02d}")
+    month_days = file_df[file_df["date"].apply(lambda d: d.year == selected_month.year and d.month == selected_month.month)].sort_values("date", ascending=False)
+    cols = st.columns(min(8, max(1, len(month_days))))
+    for idx, (_, row) in enumerate(month_days.iterrows()):
+        day = row["date"]
+        if cols[idx % len(cols)].button(f"{month_name[day.month][:3]} {day.day}", key=f"date-{day.isoformat()}", type="primary" if day == selected_date else "secondary"):
+            st.session_state.selected_scan_date = day
+            st.rerun()
+
+    st.markdown("<div class='summary-grid'>" +
+        f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
+        f"<div class='summary-item'><div class='label'>RSI & Puddle</div><div class='value'>{rsi_puddle}</div><div class='hint'>stronger warning</div></div>" +
+        f"<div class='summary-item'><div class='label'>Stocks</div><div class='value'>{stocks}</div><div class='hint'>S&P500 + NASDAQ100</div></div>" +
+        f"<div class='summary-item'><div class='label'>ETFs</div><div class='value'>{etfs}</div><div class='hint'>representative set</div></div>" +
+        "</div>", unsafe_allow_html=True)
 
     if not df.empty:
-        df["_stage"]=df.get("puddle",pd.Series(dtype=str)).apply(parse_stage)
-        counts=df["_stage"].value_counts().to_dict()
-        st.markdown("<div class='section-label'>Puddle stages</div>", unsafe_allow_html=True)
-        st.markdown("<div class='stage-grid'>"+stage_card("1st Puddle",counts.get("1st",0),"MA20 break","blue")+stage_card("2nd Puddle",counts.get("2nd",0),"MA60 break","")+stage_card("3rd Puddle",counts.get("3rd",0),"MA120 break","yellow")+stage_card("4th Puddle",counts.get("4th",0),"MA200 + RSI","red")+"</div>", unsafe_allow_html=True)
+        df["_stage"] = df.get("puddle", pd.Series(dtype=str)).apply(parse_stage)
+        counts = df["_stage"].value_counts().to_dict()
+        st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Puddle Overview</span></div>", unsafe_allow_html=True)
+        st.markdown("<div class='stage-strip'>" +
+            f"<div class='stage'><div class='name'>1st · MA20</div><div class='count'>{counts.get('1st',0)}</div><div class='desc'>short-term break</div></div>" +
+            f"<div class='stage'><div class='name'>2nd · MA60</div><div class='count'>{counts.get('2nd',0)}</div><div class='desc'>mid-term break</div></div>" +
+            f"<div class='stage'><div class='name'>3rd · MA120</div><div class='count'>{counts.get('3rd',0)}</div><div class='desc'>longer trend warning</div></div>" +
+            f"<div class='stage'><div class='name'>4th · MA200</div><div class='count'>{counts.get('4th',0)}</div><div class='desc'>MA200 + RSI</div></div>" +
+            "</div>", unsafe_allow_html=True)
 
-    st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
-    month_options=sorted({d.replace(day=1) for d in file_df["date"]}, reverse=True)
-    selected_month=st.selectbox("Month", month_options, format_func=lambda d:f"{d.year}. {d.month:02d}")
-    month_days=file_df[file_df["date"].apply(lambda d: d.year==selected_month.year and d.month==selected_month.month)].sort_values("date", ascending=False)
-    st.markdown("<div class='date-strip'>", unsafe_allow_html=True)
-    cols=st.columns(min(7, max(1, len(month_days))))
-    for idx, (_, row) in enumerate(month_days.iterrows()):
-        col=cols[idx % len(cols)]
-        day=row["date"]
-        if col.button(f"{day.day}\n{month_name[day.month][:3]}", key=f"date-{day.isoformat()}", type="primary" if day==selected_date else "secondary"):
-            st.session_state.selected_scan_date=day
-            st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-label'>Filter</div>", unsafe_allow_html=True)
+    f1, f2, f3 = st.columns([1, 1, 2.1])
+    type_filter = f1.selectbox("Type", ["All", "Stock", "ETF"])
+    signal_filter = f2.selectbox("Signal", ["All", "RSI & Puddle", "Puddle"])
+    query = f3.text_input("Search", placeholder="Ticker, e.g. AAPL, NVDA, QQQ")
 
-    st.markdown("<div class='section-label'>Signal list</div>", unsafe_allow_html=True)
-    f1,f2,f3=st.columns([1,1,1.4])
-    type_filter=f1.selectbox("Type",["All","Stock","ETF"])
-    signal_filter=f2.selectbox("Signal",["All","RSI & Puddle","Puddle"])
-    query=f3.text_input("Ticker search", placeholder="AAPL, QQQ...")
-
-    filtered=df.copy()
-    if type_filter!="All" and "asset_type" in filtered.columns:
-        filtered=filtered[filtered["asset_type"]==type_filter]
-    if signal_filter!="All" and "signal" in filtered.columns:
-        filtered=filtered[filtered["signal"]==signal_filter]
+    filtered = df.copy()
+    if type_filter != "All" and "asset_type" in filtered.columns:
+        filtered = filtered[filtered["asset_type"] == type_filter]
+    if signal_filter != "All" and "signal" in filtered.columns:
+        filtered = filtered[filtered["signal"] == signal_filter]
     if query and "ticker" in filtered.columns:
-        filtered=filtered[filtered["ticker"].str.contains(query.strip(),case=False,na=False)]
+        filtered = filtered[filtered["ticker"].str.contains(query.strip(), case=False, na=False)]
 
+    st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Signal List</span></div>", unsafe_allow_html=True)
     st.dataframe(prepare_display_table(filtered), use_container_width=True, hide_index=True, height=560)
-    csv=filtered.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8")
-    st.download_button("Download selected CSV", data=csv, file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
+    st.download_button("Download selected CSV", data=filtered.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
