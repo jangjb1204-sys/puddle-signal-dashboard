@@ -67,9 +67,12 @@ html, body, [class*="css"], .stApp {
 
 /* Controls */
 div[data-testid="stSelectbox"] label, div[data-testid="stTextInput"] label { color:#8e8e93!important; font-size:.76rem!important; font-weight:760!important; letter-spacing:.06em!important; text-transform:uppercase!important; }
-div[data-baseweb="select"] > div, div[data-testid="stTextInput"] [data-baseweb="input"] { background:#e9edf5!important; border:0!important; border-radius:14px!important; min-height:58px!important; box-shadow:none!important; }
-div[data-baseweb="select"] span, div[data-testid="stTextInput"] input { color:#16191f!important; font-family:'DM Sans', sans-serif!important; font-weight:720!important; }
-div[data-testid="stTextInput"] input::placeholder { color:rgba(22,25,31,.34)!important; }
+div[data-baseweb="select"] > div, div[data-testid="stTextInput"] [data-baseweb="input"] { background:rgba(255,255,255,.045)!important; border:1px solid rgba(255,255,255,.09)!important; border-radius:14px!important; min-height:56px!important; box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important; }
+div[data-baseweb="select"] span, div[data-baseweb="select"] div, div[data-testid="stTextInput"] input { color:#f5f5f7!important; font-family:'DM Sans', sans-serif!important; font-weight:700!important; }
+div[data-testid="stTextInput"] input::placeholder { color:rgba(245,245,247,.25)!important; }
+div[data-baseweb="popover"], div[data-baseweb="menu"] { background:#11141b!important; color:#f5f5f7!important; }
+li[role="option"] { background:#11141b!important; color:#f5f5f7!important; }
+li[role="option"]:hover { background:#1b202b!important; }
 .stButton > button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:46px!important; font-weight:740!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
 
