@@ -61,6 +61,20 @@ DEFAULT_ETF_TICKERS = [
     "TIP", "SHY", "IEF", "BIL", "SGOV", "DIA", "RSP", "MDY", "SMH", "SOXX",
     "ARKK", "EFA", "EEM", "EWJ", "EWZ", "FXI", "VGK", "GDX", "SLV", "USO",
 ]
+DEFAULT_ETF_NAMES = {
+    "SPY": "SPDR S&P 500 ETF Trust", "IVV": "iShares Core S&P 500 ETF", "VOO": "Vanguard S&P 500 ETF", "VTI": "Vanguard Total Stock Market ETF", "QQQ": "Invesco QQQ Trust",
+    "VEA": "Vanguard FTSE Developed Markets ETF", "VTV": "Vanguard Value ETF", "IEFA": "iShares Core MSCI EAFE ETF", "VUG": "Vanguard Growth ETF", "AGG": "iShares Core U.S. Aggregate Bond ETF",
+    "BND": "Vanguard Total Bond Market ETF", "IEMG": "iShares Core MSCI Emerging Markets ETF", "VWO": "Vanguard FTSE Emerging Markets ETF", "IJH": "iShares Core S&P Mid-Cap ETF", "VIG": "Vanguard Dividend Appreciation ETF",
+    "IJR": "iShares Core S&P Small-Cap ETF", "IWF": "iShares Russell 1000 Growth ETF", "IWM": "iShares Russell 2000 ETF", "GLD": "SPDR Gold Shares", "IWD": "iShares Russell 1000 Value ETF",
+    "VO": "Vanguard Mid-Cap ETF", "VB": "Vanguard Small-Cap ETF", "VXUS": "Vanguard Total International Stock ETF", "XLK": "Technology Select Sector SPDR Fund", "VGT": "Vanguard Information Technology ETF",
+    "SCHD": "Schwab U.S. Dividend Equity ETF", "VNQ": "Vanguard Real Estate ETF", "XLV": "Health Care Select Sector SPDR Fund", "XLF": "Financial Select Sector SPDR Fund", "XLE": "Energy Select Sector SPDR Fund",
+    "XLY": "Consumer Discretionary Select Sector SPDR Fund", "XLI": "Industrial Select Sector SPDR Fund", "XLP": "Consumer Staples Select Sector SPDR Fund", "XLU": "Utilities Select Sector SPDR Fund", "XLB": "Materials Select Sector SPDR Fund",
+    "XLRE": "Real Estate Select Sector SPDR Fund", "XLC": "Communication Services Select Sector SPDR Fund", "TLT": "iShares 20+ Year Treasury Bond ETF", "HYG": "iShares iBoxx High Yield Corporate Bond ETF", "LQD": "iShares iBoxx Investment Grade Corporate Bond ETF",
+    "TIP": "iShares TIPS Bond ETF", "SHY": "iShares 1-3 Year Treasury Bond ETF", "IEF": "iShares 7-10 Year Treasury Bond ETF", "BIL": "SPDR Bloomberg 1-3 Month T-Bill ETF", "SGOV": "iShares 0-3 Month Treasury Bond ETF",
+    "DIA": "SPDR Dow Jones Industrial Average ETF Trust", "RSP": "Invesco S&P 500 Equal Weight ETF", "MDY": "SPDR S&P MidCap 400 ETF Trust", "SMH": "VanEck Semiconductor ETF", "SOXX": "iShares Semiconductor ETF",
+    "ARKK": "ARK Innovation ETF", "EFA": "iShares MSCI EAFE ETF", "EEM": "iShares MSCI Emerging Markets ETF", "EWJ": "iShares MSCI Japan ETF", "EWZ": "iShares MSCI Brazil ETF",
+    "FXI": "iShares China Large-Cap ETF", "VGK": "Vanguard FTSE Europe ETF", "GDX": "VanEck Gold Miners ETF", "SLV": "iShares Silver Trust", "USO": "United States Oil Fund",
+}
 
 
 class YahooRateLimitError(RuntimeError):
@@ -85,6 +99,14 @@ def unique_tickers(tickers: Iterable[str]) -> list[str]:
     return result
 
 
+def pick_column(table: pd.DataFrame, candidates: list[str]):
+    lower_cols = {str(col).strip().lower(): col for col in table.columns}
+    for candidate in candidates:
+        if candidate.lower() in lower_cols:
+            return lower_cols[candidate.lower()]
+    return None
+
+
 def load_tickers_from_csv(path: str | Path, limit: int) -> list[str]:
     df = pd.read_csv(path)
     if df.empty:
@@ -105,7 +127,11 @@ def load_universe_cache(key: str, limit: int | None = None) -> list[str] | None:
         return None
     try:
         data = json.loads(path.read_text())
-        tickers = unique_tickers(data.get(key, []))
+        raw_items = data.get(key, [])
+        if raw_items and isinstance(raw_items[0], dict):
+            tickers = unique_tickers(item.get("ticker", "") for item in raw_items)
+        else:
+            tickers = unique_tickers(raw_items)
         if tickers:
             print(f"{key}: universe cache hit ({len(tickers)} tickers)", flush=True)
             return tickers[:limit] if limit else tickers
@@ -140,21 +166,40 @@ def extract_tickers_with_cache(key: str, url: str, limit: int | None = None) -> 
 
 
 def extract_tickers_from_html_table(url: str, limit: int | None = None) -> list[str]:
+    records = extract_universe_records_from_html_table(url, limit)
+    return [record["ticker"] for record in records]
+
+
+def extract_universe_records_from_html_table(url: str, limit: int | None = None) -> list[dict]:
     headers = {"User-Agent": USER_AGENT}
     response = requests.get(url, headers=headers, timeout=20)
     response.raise_for_status()
 
     tables = pd.read_html(StringIO(response.text))
     for table in tables:
-        lower_cols = {str(col).strip().lower(): col for col in table.columns}
-        ticker_col = lower_cols.get("symbol") or lower_cols.get("ticker") or lower_cols.get("fund")
+        ticker_col = pick_column(table, ["symbol", "ticker", "fund"])
         if ticker_col is None:
             continue
-
-        tickers = unique_tickers(table[ticker_col].dropna().tolist())
-        if tickers:
-            return tickers[:limit] if limit else tickers
-
+        name_col = pick_column(table, ["company", "company name", "security", "name", "fund name"])
+        rank_col = pick_column(table, ["#", "rank"])
+        records = []
+        seen = set()
+        for idx, row in table.iterrows():
+            ticker = normalize_ticker(row.get(ticker_col, ""))
+            if not ticker or ticker in seen:
+                continue
+            seen.add(ticker)
+            rank_value = row.get(rank_col) if rank_col is not None else len(records) + 1
+            try:
+                rank = int(float(rank_value))
+            except Exception:
+                rank = len(records) + 1
+            name = str(row.get(name_col, "")).strip() if name_col is not None else ""
+            records.append({"ticker": ticker, "name": name, "rank": rank})
+            if limit and len(records) >= limit:
+                break
+        if records:
+            return records
     return []
 
 
@@ -170,26 +215,56 @@ def merge_stock_universes(sp500_tickers: list[str], nasdaq100_tickers: list[str]
     return merged, universe_map
 
 
+def merge_stock_metadata(sp500_records: list[dict], nasdaq_records: list[dict]) -> tuple[list[str], dict[str, str], dict[str, dict]]:
+    sp500_tickers = [record["ticker"] for record in sp500_records]
+    nasdaq_tickers = [record["ticker"] for record in nasdaq_records]
+    merged, universe_map = merge_stock_universes(sp500_tickers, nasdaq_tickers)
+    metadata: dict[str, dict] = {}
+    for record in nasdaq_records:
+        ticker = record["ticker"]
+        metadata.setdefault(ticker, {})
+        metadata[ticker].setdefault("company_name", record.get("name") or "")
+        metadata[ticker]["rank"] = record.get("rank")
+    for record in sp500_records:
+        ticker = record["ticker"]
+        metadata.setdefault(ticker, {})
+        if record.get("name"):
+            metadata[ticker]["company_name"] = record.get("name")
+        metadata[ticker]["rank"] = record.get("rank")
+    return merged, universe_map, metadata
+
+
 def load_universe(
     stocks_csv: str | None,
     etfs_csv: str | None,
     stock_limit: int,
     etf_limit: int,
-) -> tuple[list[str], list[str], dict[str, str]]:
+) -> tuple[list[str], list[str], dict[str, str], dict[str, dict]]:
+    metadata: dict[str, dict] = {}
     if stocks_csv:
         stock_tickers = load_tickers_from_csv(stocks_csv, stock_limit)
         stock_universe_map = {ticker: "CustomStock" for ticker in stock_tickers}
+        for idx, ticker in enumerate(stock_tickers, start=1):
+            metadata[ticker] = {"company_name": "", "rank": idx}
     else:
-        sp500_tickers = extract_tickers_with_cache("sp500_top", DEFAULT_STOCK_URL, stock_limit)
-        nasdaq100_tickers = extract_tickers_with_cache("nasdaq100", DEFAULT_NASDAQ100_URL)
-        stock_tickers, stock_universe_map = merge_stock_universes(sp500_tickers, nasdaq100_tickers)
+        sp500_records = extract_universe_records_from_html_table(DEFAULT_STOCK_URL, stock_limit)
+        nasdaq_records = extract_universe_records_from_html_table(DEFAULT_NASDAQ100_URL)
+        if not sp500_records:
+            sp500_tickers = extract_tickers_with_cache("sp500_top", DEFAULT_STOCK_URL, stock_limit)
+            sp500_records = [{"ticker": ticker, "name": "", "rank": idx} for idx, ticker in enumerate(sp500_tickers, start=1)]
+        if not nasdaq_records:
+            nasdaq_tickers = extract_tickers_with_cache("nasdaq100", DEFAULT_NASDAQ100_URL)
+            nasdaq_records = [{"ticker": ticker, "name": "", "rank": idx} for idx, ticker in enumerate(nasdaq_tickers, start=1)]
+        stock_tickers, stock_universe_map, metadata = merge_stock_metadata(sp500_records, nasdaq_records)
 
     if etfs_csv:
         etf_tickers = load_tickers_from_csv(etfs_csv, etf_limit)
     else:
         etf_tickers = unique_tickers(DEFAULT_ETF_TICKERS)[:etf_limit]
+    for idx, ticker in enumerate(etf_tickers, start=1):
+        metadata[ticker] = {"company_name": DEFAULT_ETF_NAMES.get(ticker, ""), "rank": idx}
 
-    return stock_tickers, etf_tickers, stock_universe_map
+    return stock_tickers, etf_tickers, stock_universe_map, metadata
 
 
 def fetch_common_market_data(period: str = "2y") -> dict:
@@ -534,13 +609,16 @@ def scan_batch(
         is_etf = universe_name == "etf_top"
         signal = "RSI & Puddle" if rsi_puddle_signal else "Puddle"
         actual_date = pd.to_datetime(row.get("Date")).strftime("%Y-%m-%d")
+        meta = (ticker_metadata or {}).get(ticker, {})
 
         results.append(
             {
                 "date": actual_date,
                 "asset_type": "ETF" if is_etf else "Stock",
                 "universe": "ETF" if is_etf else (stock_universe_map or {}).get(ticker, "Stock"),
+                "rank": meta.get("rank", ""),
                 "ticker": ticker,
+                "company_name": meta.get("company_name", ""),
                 "signal": signal,
                 "close": row.get("Close"),
                 "change_pct": row.get("Change(%)"),
@@ -561,6 +639,7 @@ def scan_universe(
     stock_tickers: list[str],
     etf_tickers: list[str],
     stock_universe_map: dict[str, str],
+    ticker_metadata: dict[str, dict],
     target_date: pd.Timestamp,
     period: str,
     batch_size: int,
@@ -585,6 +664,7 @@ def scan_universe(
                 period=period,
                 common_data=common_data,
                 stock_universe_map=stock_universe_map,
+                ticker_metadata=ticker_metadata,
                 progress_start=batch_start,
                 progress_total=len(tickers),
             )
@@ -598,7 +678,9 @@ def scan_universe(
         "date",
         "asset_type",
         "universe",
+        "rank",
         "ticker",
+        "company_name",
         "signal",
         "close",
         "change_pct",
@@ -612,8 +694,9 @@ def scan_universe(
     df = pd.DataFrame(all_results)
     signal_rank = {"RSI & Puddle": 0, "Puddle": 1}
     df["_rank"] = df["signal"].map(signal_rank).fillna(99)
-    df = df.sort_values(["date", "_rank", "asset_type", "universe", "ticker"], ascending=[False, True, True, True, True])
-    return df.drop(columns=["_rank"]).reset_index(drop=True)
+    df["_display_rank"] = pd.to_numeric(df.get("rank"), errors="coerce").fillna(999999)
+    df = df.sort_values(["date", "_rank", "asset_type", "_display_rank", "ticker"], ascending=[False, True, True, True, True])
+    return df.drop(columns=["_rank", "_display_rank"]).reset_index(drop=True)
 
 
 def daily_output_path(target_date: pd.Timestamp) -> Path:
@@ -659,7 +742,7 @@ def main() -> None:
     print(f"Scan timestamp UTC: {scan_timestamp.isoformat()}", flush=True)
     print(f"Yahoo cache: {CACHE_DIR}", flush=True)
 
-    stock_tickers, etf_tickers, stock_universe_map = load_universe(
+    stock_tickers, etf_tickers, stock_universe_map, ticker_metadata = load_universe(
         stocks_csv=args.stocks_csv,
         etfs_csv=args.etfs_csv,
         stock_limit=args.stock_limit,
@@ -676,6 +759,7 @@ def main() -> None:
             stock_tickers=stock_tickers,
             etf_tickers=etf_tickers,
             stock_universe_map=stock_universe_map,
+            ticker_metadata=ticker_metadata,
             target_date=target_date,
             period=args.period,
             batch_size=args.batch_size,
