@@ -66,7 +66,7 @@ html, body, [class*="css"], .stApp {
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
 
 .calendar-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:.2rem 0 .9rem; }
-.calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; }
+.calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; text-align:center; }
 .calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:1.25rem; }
 .calendar-dow { color:#777b84; text-align:center; font-size:.68rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; padding:.25rem 0; }
 .calendar-cell { min-height:48px; border:1px solid rgba(255,255,255,.055); border-radius:15px; background:rgba(255,255,255,.018); color:rgba(245,245,247,.22); display:flex; align-items:center; justify-content:center; font-family:'DM Mono', monospace; font-size:.83rem; }
@@ -253,14 +253,6 @@ def main() -> None:
             st.rerun()
 
     st.markdown(render_calendar(file_df, selected_date, current_month), unsafe_allow_html=True)
-    month_days = file_df[file_df["date"].apply(lambda d: d.year == current_month.year and d.month == current_month.month)].sort_values("date", ascending=True)
-    if not month_days.empty:
-        cols = st.columns(min(8, max(1, len(month_days))))
-        for idx, (_, row) in enumerate(month_days.iterrows()):
-            day = row["date"]
-            if cols[idx % len(cols)].button(f"{day.day}", key=f"date-{day.isoformat()}", type="primary" if day == selected_date else "secondary"):
-                st.session_state.selected_scan_date = day
-                st.rerun()
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
