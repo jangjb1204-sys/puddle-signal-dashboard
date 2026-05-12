@@ -1,7 +1,8 @@
 """
 Standalone scanner for Puddle and RSI & Puddle signals.
 
-GitHub Actions runs this script on a schedule and overwrites one daily CSV file.
+GitHub Actions runs this script on a schedule and overwrites one daily CSV file
+inside the signal_scans folder.
 
 Examples:
     python puddle_rsi_signal_scanner.py --date 2026-05-11
@@ -51,6 +52,7 @@ CACHE_DIR = Path(__file__).resolve().parent / ".puddle_yf_cache"
 CACHE_MAX_HOURS = 0.0
 REFRESH_CACHE = False
 UNIVERSE_CACHE_FILENAME = "ticker_universe.json"
+OUTPUT_DIR = Path(__file__).resolve().parent / "signal_scans"
 
 
 class YahooRateLimitError(RuntimeError):
@@ -583,7 +585,8 @@ def scan_universe(
 
 
 def daily_output_path(target_date: pd.Timestamp) -> Path:
-    return Path(f"signal_scan_{target_date:%Y%m%d}.csv")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    return OUTPUT_DIR / f"signal_scan_{target_date:%Y%m%d}.csv"
 
 
 def parse_args() -> argparse.Namespace:
@@ -604,7 +607,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cache-dir", default=str(CACHE_DIR), help="Directory for cached Yahoo price data.")
     parser.add_argument("--cache-max-hours", type=float, default=CACHE_MAX_HOURS, help="Use cache files newer than this many hours. Use 0 to never expire.")
     parser.add_argument("--refresh-cache", action="store_true", help="Ignore cached Yahoo data and download again.")
-    parser.add_argument("--output", help="Optional CSV output path. Defaults to signal_scan_YYYYMMDD.csv.")
+    parser.add_argument("--output", help="Optional CSV output path. Defaults to signal_scans/signal_scan_YYYYMMDD.csv.")
     return parser.parse_args()
 
 
