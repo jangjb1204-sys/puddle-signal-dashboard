@@ -56,7 +56,17 @@
     }
 
     function resizeFrame() {
-      Streamlit.setFrameHeight(document.documentElement.scrollHeight);
+      const root = document.getElementById("root");
+      const height = Math.ceil(root.getBoundingClientRect().height);
+      Streamlit.setFrameHeight(Math.max(1, height));
+    }
+
+    function scheduleResize() {
+      resizeFrame();
+      window.requestAnimationFrame(() => {
+        resizeFrame();
+        window.requestAnimationFrame(resizeFrame);
+      });
     }
 
     function selectSignal(button) {
@@ -109,7 +119,7 @@
         document.getElementById("root").innerHTML = `
           <div class="signal-table-wrap"><div class="empty-note">No signals match the selected filters.</div></div>
         `;
-        resizeFrame();
+        scheduleResize();
         return;
       }
 
@@ -130,7 +140,7 @@
       document.querySelectorAll(".signal-badge").forEach((button) => {
         button.addEventListener("click", () => selectSignal(button));
       });
-      resizeFrame();
+      scheduleResize();
     }
 
     window.addEventListener("message", (event) => {
