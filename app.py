@@ -6,12 +6,14 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 APP_DIR = Path(__file__).resolve().parent
 SCAN_DIR = APP_DIR / "signal_scans"
 THREADS_URL = "https://www.threads.net/@30s_tech_j"
 CACHE_TTL_SECONDS = 60
+calendar_component = components.declare_component("puddle_calendar", path=str(APP_DIR / "calendar_component"))
 
 st.set_page_config(
     page_title="Puddle Signal Scanner",
@@ -166,6 +168,16 @@ def render_calendar_header() -> str:
     cells = [f"<div class='calendar-dow'>{day}</div>" for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
     return f"<div class='calendar-grid-static'>{''.join(cells)}</div>"
 
+def parse_calendar_component_value(value) -> tuple:
+    if not isinstance(value, dict):
+        return None, None
+    try:
+        selected_date = pd.to_datetime(value.get("date")).date() if value.get("date") else None
+        current_month = pd.to_datetime(f"{value.get('month')}-01").date() if value.get("month") else None
+    except Exception:
+        return None, None
+    return selected_date, current_month
+
 def calendar_link(date_value, month_value) -> str:
     return f"/?date={date_value.isoformat()}&month={month_value:%Y-%m}"
 
@@ -206,6 +218,30 @@ def render_calendar_grid(current_month, selected_date, available_dates: set) -> 
                 day_cells.append(render_empty_calendar_cell(day, current_month))
         cells.append(f"<div class='calendar-grid-static'>{''.join(day_cells)}</div>")
     return "<div class='calendar-shell'>" + "".join(cells) + "</div>"
+
+def render_calendar_component(current_month, selected_date, available_dates: set, month_options: list):
+    current_idx = month_options.index(current_month)
+    weeks = []
+    for week in calendar_weeks(current_month):
+        week_cells = []
+        for day in week:
+            week_cells.append({
+                "date": day.isoformat(),
+                "label": str(day.day),
+                "available": day in available_dates,
+                "in_month": day.month == current_month.month,
+            })
+        weeks.append(week_cells)
+    return calendar_component(
+        title=f"{month_name[current_month.month]} {current_month.year}",
+        current_month=f"{current_month:%Y-%m}",
+        selected_date=selected_date.isoformat(),
+        prev_month=f"{month_options[current_idx - 1]:%Y-%m}" if current_idx > 0 else None,
+        next_month=f"{month_options[current_idx + 1]:%Y-%m}" if current_idx < len(month_options) - 1 else None,
+        weeks=weeks,
+        default=None,
+        key="calendar_picker",
+    )
 
 def first_query_value(key: str) -> str | None:
     value = st.query_params.get(key)
@@ -266,8 +302,11 @@ def main() -> None:
 
     latest_date = file_df["date"].max()
     available_dates = set(file_df["date"].tolist())
+    calendar_selected_date, calendar_month = parse_calendar_component_value(st.session_state.get("calendar_picker"))
     query_date = first_query_value("date")
-    if query_date:
+    if calendar_selected_date:
+        selected_date = calendar_selected_date
+    elif query_date:
         try:
             selected_date = pd.to_datetime(query_date).date()
         except Exception:
@@ -284,7 +323,9 @@ def main() -> None:
 
     month_options = sorted({d.replace(day=1) for d in file_df["date"]})
     query_month = first_query_value("month")
-    if query_month:
+    if calendar_month:
+        current_month = calendar_month
+    elif query_month:
         try:
             current_month = pd.to_datetime(f"{query_month}-01").date()
         except Exception:
@@ -319,8 +360,7 @@ def main() -> None:
     """, unsafe_allow_html=True)
 
     st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
-    st.markdown(render_calendar_nav(current_month, selected_date, month_options), unsafe_allow_html=True)
-    st.markdown(render_calendar_grid(current_month, selected_date, available_dates), unsafe_allow_html=True)
+    render_calendar_component(current_month, selected_date, available_dates, month_options)
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
