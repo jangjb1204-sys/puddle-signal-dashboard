@@ -64,12 +64,17 @@ html, body, [class*="css"], .stApp {
 .stage .name { color:#e9ebef; font-weight:760; font-size:.95rem; }
 .stage .count { margin-top:.45rem; font-family:'DM Mono', monospace; color:#f5f5f7; font-size:1.45rem; }
 .stage .desc { margin-top:.35rem; color:#777b84; font-size:.78rem; }
-.calendar-head { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:.2rem 0 .9rem; }
-.calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; text-align:center; }
-.calendar-grid-static { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:.45rem; }
+.calendar-shell { width:100%; max-width:100%; overflow:hidden; }
+.calendar-head { display:grid; grid-template-columns:44px minmax(0,1fr) 44px; align-items:center; gap:12px; margin:.2rem 0 .9rem; }
+.calendar-title { color:#f5f5f7; font-size:1.08rem; font-weight:760; text-align:center; min-width:0; }
+.calendar-nav, .calendar-day { display:flex; align-items:center; justify-content:center; min-height:36px; border-radius:999px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.035); color:#f5f5f7!important; font-size:.78rem; font-weight:720; text-decoration:none!important; }
+.calendar-nav.disabled { opacity:.34; pointer-events:none; }
+.calendar-grid-static { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; margin-bottom:.45rem; max-width:100%; }
 .calendar-dow { color:#777b84; text-align:center; font-size:.68rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; padding:.25rem 0; }
 .calendar-empty { min-height:46px; border:1px solid rgba(255,255,255,.045); border-radius:15px; background:rgba(255,255,255,.012); color:rgba(245,245,247,.16); display:flex; align-items:center; justify-content:center; font-family:'DM Mono', monospace; font-size:.8rem; }
 .calendar-empty.out { opacity:.28; }
+.calendar-day { min-height:46px; border-radius:15px; font-family:'DM Sans', sans-serif; }
+.calendar-day.selected { background:#d8dde6; color:#111318!important; border-color:#d8dde6; }
 .filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin:0 0 .42rem .15rem; }
 .stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:36px!important; padding:0 13px!important; font-size:.78rem!important; font-weight:720!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
@@ -91,7 +96,18 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
 .creator-footer a { color:rgba(245,245,247,.34); font-family:'DM Sans', sans-serif; font-size:1rem; font-weight:650; text-decoration:none!important; }
 .creator-footer a:hover { color:rgba(245,245,247,.58); }
 @media (max-width:900px){ .block-container{padding:3.4rem 1.5rem 2.4rem!important;} .hero{display:block;} .top-stats{margin-top:1.2rem;} .summary-grid,.stage-strip{grid-template-columns:repeat(2,minmax(0,1fr));} .title-wrap h1{font-size:2.45rem;} }
-@media (max-width:640px){ .summary-grid,.stage-strip{grid-template-columns:1fr;} .title-wrap h1{font-size:2.05rem;} .calendar-grid-static{gap:5px}.calendar-empty{min-height:39px;border-radius:12px;font-size:.76rem;} }
+@media (max-width:640px){
+    .block-container{padding:3.05rem .82rem 2.1rem!important;}
+    .summary-grid,.stage-strip{grid-template-columns:1fr;}
+    .title-wrap h1{font-size:2.05rem;}
+    .calendar-shell{margin-left:-.1rem;margin-right:-.1rem;}
+    .calendar-head{grid-template-columns:38px minmax(0,1fr) 38px; gap:6px; margin:.1rem 0 .55rem;}
+    .calendar-title{font-size:.98rem;}
+    .calendar-nav{min-height:34px; padding:0; font-size:.95rem;}
+    .calendar-grid-static{grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-bottom:.28rem;}
+    .calendar-dow{font-size:.58rem; letter-spacing:0; padding:.16rem 0;}
+    .calendar-empty,.calendar-day{min-height:34px; border-radius:10px; font-size:.72rem; padding:0;}
+}
 </style>
 """
 
@@ -150,12 +166,52 @@ def render_calendar_header() -> str:
     cells = [f"<div class='calendar-dow'>{day}</div>" for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
     return f"<div class='calendar-grid-static'>{''.join(cells)}</div>"
 
+def calendar_link(date_value, month_value) -> str:
+    return f"/?date={date_value.isoformat()}&month={month_value:%Y-%m}"
+
+def render_calendar_nav(current_month, selected_date, month_options: list) -> str:
+    current_idx = month_options.index(current_month)
+    prev_month = month_options[current_idx - 1] if current_idx > 0 else None
+    next_month = month_options[current_idx + 1] if current_idx < len(month_options) - 1 else None
+    prev_href = calendar_link(selected_date, prev_month) if prev_month else "#"
+    next_href = calendar_link(selected_date, next_month) if next_month else "#"
+    prev_class = "calendar-nav" if prev_month else "calendar-nav disabled"
+    next_class = "calendar-nav" if next_month else "calendar-nav disabled"
+    return (
+        "<div class='calendar-head'>"
+        f"<a class='{prev_class}' href='{prev_href}' target='_self' aria-label='Previous month'>‹</a>"
+        f"<div class='calendar-title'>{month_name[current_month.month]} {current_month.year}</div>"
+        f"<a class='{next_class}' href='{next_href}' target='_self' aria-label='Next month'>›</a>"
+        "</div>"
+    )
+
 def render_empty_calendar_cell(day, selected_month) -> str:
     classes = ["calendar-empty"]
     if day.month != selected_month.month:
         classes.append("out")
     text = day.day if day.month == selected_month.month else ""
     return f"<div class='{' '.join(classes)}'>{text}</div>"
+
+def render_calendar_grid(current_month, selected_date, available_dates: set) -> str:
+    cells = [render_calendar_header()]
+    for week in calendar_weeks(current_month):
+        day_cells = []
+        for day in week:
+            if day in available_dates:
+                selected_class = " selected" if day == selected_date else ""
+                day_cells.append(
+                    f"<a class='calendar-day{selected_class}' href='{calendar_link(day, current_month)}' target='_self'>{day.day}</a>"
+                )
+            else:
+                day_cells.append(render_empty_calendar_cell(day, current_month))
+        cells.append(f"<div class='calendar-grid-static'>{''.join(day_cells)}</div>")
+    return "<div class='calendar-shell'>" + "".join(cells) + "</div>"
+
+def first_query_value(key: str) -> str | None:
+    value = st.query_params.get(key)
+    if isinstance(value, list):
+        return value[0] if value else None
+    return value
 
 def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
@@ -209,18 +265,34 @@ def main() -> None:
         return
 
     latest_date = file_df["date"].max()
-    if "selected_scan_date" not in st.session_state:
-        st.session_state.selected_scan_date = latest_date
-    selected_date = st.session_state.selected_scan_date
+    available_dates = set(file_df["date"].tolist())
+    query_date = first_query_value("date")
+    if query_date:
+        try:
+            selected_date = pd.to_datetime(query_date).date()
+        except Exception:
+            selected_date = st.session_state.get("selected_scan_date", latest_date)
+    elif "selected_scan_date" not in st.session_state:
+        selected_date = latest_date
+    else:
+        selected_date = st.session_state.selected_scan_date
     if selected_date not in set(file_df["date"].tolist()):
         selected_date = latest_date
         st.session_state.selected_scan_date = latest_date
+    else:
+        st.session_state.selected_scan_date = selected_date
 
     month_options = sorted({d.replace(day=1) for d in file_df["date"]})
-    current_month = st.session_state.get("calendar_month", selected_date.replace(day=1))
+    query_month = first_query_value("month")
+    if query_month:
+        try:
+            current_month = pd.to_datetime(f"{query_month}-01").date()
+        except Exception:
+            current_month = selected_date.replace(day=1)
+    else:
+        current_month = selected_date.replace(day=1)
     if current_month not in month_options:
         current_month = selected_date.replace(day=1)
-    current_idx = month_options.index(current_month)
 
     selected_row = file_df[file_df["date"] == selected_date].iloc[-1]
     df = load_scan_csv(selected_row["path"], int(selected_row.get("mtime_ns", 0)))
@@ -247,30 +319,8 @@ def main() -> None:
     """, unsafe_allow_html=True)
 
     st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
-    nav_cols = st.columns([1, 5, 1])
-    with nav_cols[0]:
-        if st.button("‹", disabled=current_idx <= 0, key="prev-month"):
-            st.session_state.calendar_month = month_options[current_idx - 1]
-            st.rerun()
-    with nav_cols[1]:
-        st.markdown(f"<div class='calendar-head'><div class='calendar-title'>{month_name[current_month.month]} {current_month.year}</div></div>", unsafe_allow_html=True)
-    with nav_cols[2]:
-        if st.button("›", disabled=current_idx >= len(month_options) - 1, key="next-month"):
-            st.session_state.calendar_month = month_options[current_idx + 1]
-            st.rerun()
-
-    st.markdown(render_calendar_header(), unsafe_allow_html=True)
-    available_dates = set(file_df["date"].tolist())
-    for week_index, week in enumerate(calendar_weeks(current_month)):
-        cols = st.columns(7, gap="small")
-        for col_index, day in enumerate(week):
-            with cols[col_index]:
-                if day in available_dates:
-                    if st.button(str(day.day), key=f"calendar-{day.isoformat()}", type="primary" if day == selected_date else "secondary", use_container_width=True):
-                        st.session_state.selected_scan_date = day
-                        st.rerun()
-                else:
-                    st.markdown(render_empty_calendar_cell(day, current_month), unsafe_allow_html=True)
+    st.markdown(render_calendar_nav(current_month, selected_date, month_options), unsafe_allow_html=True)
+    st.markdown(render_calendar_grid(current_month, selected_date, available_dates), unsafe_allow_html=True)
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
