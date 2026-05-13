@@ -3,8 +3,11 @@ from __future__ import annotations
 from calendar import Calendar, month_name
 from html import escape
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
+import plotly.graph_objects as go
+import requests
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -13,7 +16,9 @@ APP_DIR = Path(__file__).resolve().parent
 SCAN_DIR = APP_DIR / "signal_scans"
 THREADS_URL = "https://www.threads.net/@30s_tech_j"
 CACHE_TTL_SECONDS = 60
+CHART_CACHE_TTL_SECONDS = 60 * 60 * 6
 calendar_component = components.declare_component("puddle_calendar", path=str(APP_DIR / "calendar_component"))
+signal_table_component = components.declare_component("puddle_signal_table", path=str(APP_DIR / "signal_table_component"))
 
 st.set_page_config(
     page_title="Puddle Signal Scanner",
@@ -93,6 +98,10 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
 .signal-badge.strong { background:rgba(255,107,122,.12); color:#ffb6bf; border-color:rgba(255,107,122,.22); }
 .type-badge { color:#9fb6d9; font-size:.78rem; font-weight:720; }
 .puddle-text { color:#b7bcc7; max-width:330px; }
+.signal-chart-header { margin-top:1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; }
+.signal-chart-title { color:#f5f5f7; font-size:1.05rem; font-weight:760; }
+.signal-chart-subtitle { margin-top:.25rem; color:#8e8e93; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; }
+.signal-chart-note { color:#8e8e93; padding:1rem 0 .2rem; font-size:.86rem; }
 .empty-note { color:#8e8e93; padding:1.2rem 0; }
 .creator-footer { margin:2.8rem 0 .4rem; }
 .creator-footer a { color:rgba(245,245,247,.34); font-family:'DM Sans', sans-serif; font-size:1rem; font-weight:650; text-decoration:none!important; }
@@ -159,6 +168,259 @@ def safe_num(value, suffix="") -> str:
         return f"{float(value):.2f}{suffix}"
     except Exception:
         return "--"
+
+def yahoo_symbol(ticker: str) -> str:
+    return str(ticker or "").strip().upper().replace(".", "-")
+
+def normalize_date_column(data: pd.DataFrame) -> pd.DataFrame:
+    if data.empty or "Date" not in data.columns:
+        return data
+    data = data.copy()
+    data["Date"] = pd.to_datetime(data["Date"], errors="coerce").dt.tz_localize(None).dt.normalize()
+    return data.dropna(subset=["Date"]).sort_values("Date").drop_duplicates("Date").reset_index(drop=True)
+
+def padded_values(values, length: int):
+    values = values or []
+    return list(values) + [None] * max(0, length - len(values))
+
+@st.cache_data(show_spinner=False, ttl=CHART_CACHE_TTL_SECONDS)
+def fetch_yahoo_chart(symbol: str, period: str = "2y") -> pd.DataFrame:
+    encoded_symbol = quote(yahoo_symbol(symbol), safe="")
+    if not encoded_symbol:
+        return pd.DataFrame()
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{encoded_symbol}"
+    params = {
+        "range": period,
+        "interval": "1d",
+        "events": "history",
+        "includeAdjustedClose": "true",
+    }
+    try:
+        response = requests.get(
+            url,
+            params=params,
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=12,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception:
+        return pd.DataFrame()
+
+    result = (payload.get("chart", {}).get("result") or [None])[0]
+    if not result or not result.get("timestamp"):
+        return pd.DataFrame()
+
+    timestamps = result.get("timestamp") or []
+    quote_data = (result.get("indicators", {}).get("quote") or [{}])[0]
+    length = len(timestamps)
+    dates = pd.to_datetime(timestamps, unit="s", utc=True).tz_convert("America/New_York").tz_localize(None).normalize()
+    data = pd.DataFrame({
+        "Date": dates,
+        "Open": padded_values(quote_data.get("open"), length)[:length],
+        "High": padded_values(quote_data.get("high"), length)[:length],
+        "Low": padded_values(quote_data.get("low"), length)[:length],
+        "Close": padded_values(quote_data.get("close"), length)[:length],
+        "Volume": padded_values(quote_data.get("volume"), length)[:length],
+    })
+    data = data.dropna(subset=["Close"])
+    for col in ["Open", "High", "Low", "Close", "Volume"]:
+        data[col] = pd.to_numeric(data[col], errors="coerce")
+    return normalize_date_column(data)
+
+def calculate_rsi(data: pd.DataFrame, window: int = 14) -> pd.Series:
+    if len(data) < window:
+        return pd.Series([pd.NA] * len(data), index=data.index, dtype="float64")
+    delta = data["Close"].diff()
+    gain = delta.where(delta > 0, 0).rolling(window=window).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+    rs = gain / loss
+    return (100 - (100 / (1 + rs))).round(2)
+
+def calculate_moving_averages(data: pd.DataFrame, windows: list[int] | None = None) -> pd.DataFrame:
+    data = data.copy()
+    for window in windows or [20, 60, 120, 200]:
+        data[f"MA{window}"] = data["Close"].rolling(window=window).mean().round(2) if len(data) >= window else pd.NA
+    return data
+
+def generate_puddle_signals(data: pd.DataFrame) -> pd.DataFrame:
+    data = data.copy()
+    alerts = [""]
+    for index in range(1, len(data)):
+        row = data.iloc[index]
+        prev = data.iloc[index - 1]
+        conditions = {
+            1: (
+                pd.notna(row.get("MA20"))
+                and pd.notna(prev.get("MA20"))
+                and row["Close"] < row["MA20"]
+                and prev["Close"] >= prev.get("MA20", pd.NA)
+            ),
+            2: (
+                pd.notna(row.get("MA60"))
+                and pd.notna(prev.get("MA60"))
+                and row["Close"] < row["MA60"]
+                and prev["Close"] >= prev.get("MA60", pd.NA)
+            ),
+            3: (
+                pd.notna(row.get("MA120"))
+                and pd.notna(prev.get("MA120"))
+                and row["Close"] < row["MA120"]
+                and prev["Close"] >= prev.get("MA120", pd.NA)
+            ),
+            4: (
+                pd.notna(row.get("MA200"))
+                and pd.notna(prev.get("MA200"))
+                and row["Close"] < row["MA200"]
+                and prev["Close"] >= prev.get("MA200", pd.NA)
+                and pd.notna(row.get("RSI"))
+                and row["RSI"] < 30
+            ),
+        }
+        timings = [stage for stage, matched in conditions.items() if matched]
+        alerts.append({
+            4: "4th: MA200, RSI<=30, 100% cash, 40d",
+            3: "3rd: MA120, 50% cash, 5d",
+            2: "2nd: MA60, 50% cash, 5d",
+            1: "1st: MA20, 10% cash",
+        }.get(max(timings), "") if timings else "")
+    data["Puddle"] = alerts
+    return data
+
+@st.cache_data(show_spinner=False, ttl=CHART_CACHE_TTL_SECONDS)
+def fetch_market_overlay(period: str = "2y") -> pd.DataFrame:
+    vix = fetch_yahoo_chart("^VIX", period)
+    vix1d = fetch_yahoo_chart("^VIX1D", period)
+    if vix.empty or vix1d.empty:
+        return pd.DataFrame(columns=["Date", "VIX", "VIX1D", "VIX1D>VIX"])
+
+    overlay = pd.merge(
+        vix[["Date", "Close"]].rename(columns={"Close": "VIX"}),
+        vix1d[["Date", "Close"]].rename(columns={"Close": "VIX1D"}),
+        on="Date",
+        how="outer",
+    )
+    overlay["VIX1D>VIX"] = (
+        overlay["VIX"].notna()
+        & overlay["VIX1D"].notna()
+        & (overlay["VIX"] >= 25)
+        & (overlay["VIX1D"] > overlay["VIX"])
+    )
+    return normalize_date_column(overlay)
+
+@st.cache_data(show_spinner=False, ttl=CHART_CACHE_TTL_SECONDS)
+def load_signal_history(ticker: str) -> pd.DataFrame:
+    data = fetch_yahoo_chart(ticker, "2y")
+    if data.empty:
+        return pd.DataFrame()
+
+    data[["Close", "Open", "High", "Low"]] = data[["Close", "Open", "High", "Low"]].round(2)
+    data = calculate_moving_averages(data)
+    data["RSI"] = calculate_rsi(data)
+    data = generate_puddle_signals(data)
+
+    overlay = fetch_market_overlay("2y")
+    if not overlay.empty:
+        data = pd.merge(data, overlay, on="Date", how="left")
+    else:
+        data["VIX1D>VIX"] = False
+
+    latest_date = data["Date"].max()
+    data = data[data["Date"] >= latest_date - pd.Timedelta(days=365)].reset_index(drop=True)
+    return data
+
+def has_text_signal(value) -> bool:
+    return bool(str(value or "").strip())
+
+def build_signal_chart(data: pd.DataFrame, ticker: str) -> go.Figure:
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=data["Date"],
+        y=data["Close"],
+        name="Price",
+        mode="lines",
+        line={"color": "#f5f5f7", "width": 2.2},
+        hovertemplate="%{x|%Y-%m-%d}<br>Price %{y:.2f}<extra></extra>",
+    ))
+
+    ma_styles = {
+        "MA20": "#5aa6ff",
+        "MA60": "#f0c35a",
+        "MA120": "#e6829a",
+    }
+    for ma, color in ma_styles.items():
+        if ma in data.columns and data[ma].notna().any():
+            fig.add_trace(go.Scatter(
+                x=data["Date"],
+                y=data[ma],
+                name=ma,
+                mode="lines",
+                line={"color": color, "width": 1.4, "dash": "dot"},
+                hovertemplate=f"%{{x|%Y-%m-%d}}<br>{ma} %{{y:.2f}}<extra></extra>",
+            ))
+
+    fig.add_trace(go.Scatter(
+        x=[None],
+        y=[None],
+        mode="lines",
+        name="VIX1D > VIX",
+        line={"color": "rgba(47,128,255,0.62)", "width": 1.8},
+        hoverinfo="skip",
+    ))
+    if "VIX1D>VIX" in data.columns:
+        for signal_date in data.loc[data["VIX1D>VIX"].fillna(False), "Date"]:
+            fig.add_vline(
+                x=signal_date,
+                line={"color": "rgba(47,128,255,0.46)", "width": 1.5},
+                layer="below",
+            )
+
+    signal_mask = data["RSI"].le(30) & data["Puddle"].apply(has_text_signal)
+    signal_points = data[signal_mask]
+    fig.add_trace(go.Scatter(
+        x=signal_points["Date"] if not signal_points.empty else [None],
+        y=signal_points["Close"] if not signal_points.empty else [None],
+        mode="markers",
+        name="RSI & Puddle",
+        marker={"symbol": "circle", "size": 8, "color": "#2F80FF", "line": {"width": 1.5, "color": "white"}},
+        hovertemplate="%{x|%Y-%m-%d}<br>RSI & Puddle<br>Price %{y:.2f}<extra></extra>",
+    ))
+
+    fig.update_layout(
+        title={"text": ""},
+        height=430,
+        margin={"l": 12, "r": 12, "t": 34, "b": 28},
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="#05070d",
+        font={"family": "DM Sans, sans-serif", "color": "#d7dce5", "size": 11},
+        legend={
+            "orientation": "h",
+            "yanchor": "bottom",
+            "y": 1.03,
+            "xanchor": "right",
+            "x": 1,
+            "font": {"color": "#d7dce5", "size": 11},
+        },
+        hovermode="x unified",
+        dragmode=False,
+    )
+    fig.update_xaxes(
+        tickformat="%y.%m",
+        dtick="M2",
+        showgrid=True,
+        gridcolor="rgba(255,255,255,0.055)",
+        zeroline=False,
+        fixedrange=True,
+        tickfont={"color": "rgba(245,245,247,0.54)", "size": 10},
+    )
+    fig.update_yaxes(
+        showgrid=True,
+        gridcolor="rgba(255,255,255,0.075)",
+        zeroline=False,
+        fixedrange=True,
+        tickfont={"color": "rgba(245,245,247,0.46)", "size": 10},
+    )
+    return fig
 
 def calendar_weeks(selected_month):
     cal = Calendar(firstweekday=6)
@@ -249,36 +511,65 @@ def first_query_value(key: str) -> str | None:
         return value[0] if value else None
     return value
 
-def render_signal_table(df: pd.DataFrame) -> str:
-    if df.empty:
-        return "<div class='signal-table-wrap'><div class='empty-note'>No signals match the selected filters.</div></div>"
+def prepare_signal_table_rows(df: pd.DataFrame) -> list[dict]:
     rows = []
     for _, row in df.iterrows():
-        signal = str(row.get("signal", ""))
-        strong = "strong" if signal == "RSI & Puddle" else ""
         rank = row.get("rank", "")
-        company = row.get("company_name", "")
-        index_label = normalize_index_label(row.get("universe", ""))
-        rows.append(
-            "<tr>"
-            f"<td><span class='type-badge'>{escape(str(row.get('asset_type','')))}</span></td>"
-            f"<td class='muted'>{escape(index_label)}</td>"
-            f"<td class='num'>{escape(str(rank)) if str(rank).strip() else '--'}</td>"
-            f"<td><span class='ticker'>{escape(str(row.get('ticker','')))}</span></td>"
-            f"<td>{escape(str(company)) if str(company).strip() else '--'}</td>"
-            f"<td><span class='signal-badge {strong}'>{escape(signal)}</span></td>"
-            f"<td class='num'>{safe_num(row.get('close'))}</td>"
-            f"<td class='num'>{safe_num(row.get('change_pct'), '%')}</td>"
-            f"<td class='num'>{safe_num(row.get('rsi'))}</td>"
-            f"<td class='puddle-text'>{escape(str(row.get('puddle','')))}</td>"
-            "</tr>"
+        company = str(row.get("company_name", "") or "")
+        rows.append({
+            "asset_type": str(row.get("asset_type", "") or ""),
+            "index": normalize_index_label(row.get("universe", "")),
+            "rank": str(rank) if str(rank).strip() else "--",
+            "ticker": str(row.get("ticker", "") or ""),
+            "company": company if company.strip() else "--",
+            "signal": str(row.get("signal", "") or ""),
+            "close": safe_num(row.get("close")),
+            "change": safe_num(row.get("change_pct"), "%"),
+            "rsi": safe_num(row.get("rsi")),
+            "puddle": str(row.get("puddle", "") or ""),
+        })
+    return rows
+
+def parse_signal_table_value(value) -> tuple[str | None, str | None]:
+    if not isinstance(value, dict):
+        return None, None
+    ticker = str(value.get("ticker") or "").strip().upper()
+    signal = str(value.get("signal") or "").strip()
+    return (ticker or None), (signal or None)
+
+def render_signal_table_component(df: pd.DataFrame, selected_ticker: str | None):
+    return signal_table_component(
+        rows=prepare_signal_table_rows(df),
+        selected_ticker=selected_ticker or "",
+        default=None,
+        key="signal_table_picker",
+    )
+
+def render_signal_chart_section(ticker: str, signal: str, company: str | None = None) -> None:
+    title = f"{ticker} Signals"
+    subtitle_parts = [signal or "Signal", "1Y Trend"]
+    if company and company != "--":
+        subtitle_parts.insert(0, company)
+    st.markdown(
+        "<div class='signal-chart-header'>"
+        f"<div class='signal-chart-title'>{escape(title)}</div>"
+        f"<div class='signal-chart-subtitle'>{escape(' · '.join(subtitle_parts))}</div>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+    with st.spinner(f"Loading {ticker} signal chart..."):
+        history = load_signal_history(ticker)
+    if history.empty:
+        st.markdown(
+            f"<div class='signal-chart-note'>Could not load chart data for {escape(ticker)}.</div>",
+            unsafe_allow_html=True,
         )
-    return """
-    <div class='signal-table-wrap'>
-      <table class='signal-table'>
-        <thead><tr><th>Type</th><th>Index</th><th>Rank</th><th>Ticker</th><th>Company</th><th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th></tr></thead>
-        <tbody>
-    """ + "".join(rows) + "</tbody></table></div>"
+        return
+    st.plotly_chart(
+        build_signal_chart(history, ticker),
+        use_container_width=True,
+        config={"displayModeBar": False, "responsive": True},
+    )
 
 def chip_filter(label: str, options: list[str], key: str) -> str:
     if key not in st.session_state or st.session_state[key] not in options:
@@ -395,7 +686,17 @@ def main() -> None:
         filtered = filtered[filtered["signal"] == signal_filter]
 
     st.markdown("<div class='panel-title'><span class='chev'>›</span><span>Signal List</span></div>", unsafe_allow_html=True)
-    st.markdown(render_signal_table(filtered), unsafe_allow_html=True)
+    clicked_ticker, _ = parse_signal_table_value(st.session_state.get("signal_table_picker"))
+    available_tickers = set(filtered.get("ticker", pd.Series(dtype=str)).astype(str).str.upper())
+    selected_chart_ticker = clicked_ticker if clicked_ticker in available_tickers else None
+    render_signal_table_component(filtered, selected_chart_ticker)
+    if selected_chart_ticker:
+        chart_row = filtered[filtered["ticker"].astype(str).str.upper() == selected_chart_ticker].iloc[0]
+        render_signal_chart_section(
+            selected_chart_ticker,
+            str(chart_row.get("signal", "")),
+            str(chart_row.get("company_name", "")),
+        )
     st.download_button("Download selected CSV", data=filtered.drop(columns=["_stage"], errors="ignore").to_csv(index=False).encode("utf-8"), file_name=selected_row["filename"], mime="text/csv", use_container_width=True)
     st.markdown(f"<div class='creator-footer'><a href='{THREADS_URL}' target='_blank' rel='noopener'>by 30s_tech_j</a></div>", unsafe_allow_html=True)
 

@@ -1,6 +1,7 @@
 streamlit
 pandas
 numpy
+plotly
 requests
 lxml
 html5lib
