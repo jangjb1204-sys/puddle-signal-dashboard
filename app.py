@@ -230,6 +230,33 @@ def install_calendar_click_bridge() -> None:
             }
             event.preventDefault();
             const target = new URL(link.getAttribute("href"), parentWindow.location.origin);
+            const targetDate = target.searchParams.get("date");
+            const targetMonth = target.searchParams.get("month");
+
+            if (targetDate) {
+              parentDocument.querySelectorAll(".calendar-day.selected").forEach((day) => {
+                day.classList.remove("selected");
+              });
+              if (link.classList.contains("calendar-day")) {
+                link.classList.add("selected");
+              }
+              const selectedLabel = parentDocument.querySelector(".top-stats strong");
+              if (selectedLabel) {
+                selectedLabel.textContent = targetDate;
+              }
+            }
+
+            if (targetMonth && link.classList.contains("calendar-nav")) {
+              const title = parentDocument.querySelector(".calendar-title");
+              const parsedMonth = new Date(`${targetMonth}-01T00:00:00`);
+              if (title && !Number.isNaN(parsedMonth.valueOf())) {
+                title.textContent = parsedMonth.toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                });
+              }
+            }
+
             parentWindow.history.pushState({}, "", target.pathname + target.search);
             parentWindow.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
           }, true);
