@@ -3,11 +3,9 @@ from __future__ import annotations
 from calendar import Calendar, month_name
 from html import escape
 from pathlib import Path
-from urllib.parse import parse_qs
 
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -77,7 +75,6 @@ html, body, [class*="css"], .stApp {
 .calendar-empty.out { opacity:.28; }
 .calendar-day { min-height:46px; border-radius:15px; font-family:'DM Sans', sans-serif; }
 .calendar-day.selected { background:#d8dde6; color:#111318!important; border-color:#d8dde6; }
-[data-testid="stTextInput"]:has(input[aria-label="calendar action bridge"]) { display:none!important; }
 .filter-label { color:#777b84; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; margin:0 0 .42rem .15rem; }
 .stButton > button, div[data-testid="stDownloadButton"] button { border-radius:999px!important; border:1px solid rgba(255,255,255,.08)!important; background:rgba(255,255,255,.035)!important; color:#f5f5f7!important; min-height:36px!important; padding:0 13px!important; font-size:.78rem!important; font-weight:720!important; font-family:'DM Sans', sans-serif!important; }
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
@@ -216,89 +213,6 @@ def first_query_value(key: str) -> str | None:
         return value[0] if value else None
     return value
 
-def parse_calendar_action() -> tuple | None:
-    action = st.session_state.get("calendar_action", "")
-    if not action or action == st.session_state.get("last_calendar_action"):
-        return None
-    st.session_state.last_calendar_action = action
-    params = parse_qs(action)
-    date_values = params.get("date", [])
-    month_values = params.get("month", [])
-    try:
-        selected_date = pd.to_datetime(date_values[0]).date() if date_values else None
-        current_month = pd.to_datetime(f"{month_values[0]}-01").date() if month_values else None
-    except Exception:
-        return None
-    return selected_date, current_month
-
-def install_calendar_click_bridge() -> None:
-    st.text_input("calendar action bridge", key="calendar_action", label_visibility="collapsed")
-    components.html(
-        """
-        <script>
-        const parentWindow = window.parent;
-        const parentDocument = parentWindow.document;
-
-        function setCalendarAction(value) {
-          const input = parentDocument.querySelector('input[aria-label="calendar action bridge"]');
-          if (!input) {
-            return;
-          }
-          const setter = Object.getOwnPropertyDescriptor(
-            parentWindow.HTMLInputElement.prototype,
-            "value"
-          ).set;
-          setter.call(input, value);
-          input.dispatchEvent(new Event("input", { bubbles: true }));
-          input.dispatchEvent(new Event("change", { bubbles: true }));
-        }
-
-        if (!parentWindow.__puddleCalendarClickBridge) {
-          parentWindow.__puddleCalendarClickBridge = true;
-          parentDocument.addEventListener("click", (event) => {
-            const link = event.target.closest(".calendar-nav, .calendar-day");
-            if (!link || !link.href || link.getAttribute("href") === "#") {
-              return;
-            }
-            event.preventDefault();
-            const target = new URL(link.getAttribute("href"), parentWindow.location.origin);
-            const targetDate = target.searchParams.get("date");
-            const targetMonth = target.searchParams.get("month");
-
-            if (targetDate) {
-              parentDocument.querySelectorAll(".calendar-day.selected").forEach((day) => {
-                day.classList.remove("selected");
-              });
-              if (link.classList.contains("calendar-day")) {
-                link.classList.add("selected");
-              }
-              const selectedLabel = parentDocument.querySelector(".top-stats strong");
-              if (selectedLabel) {
-                selectedLabel.textContent = targetDate;
-              }
-            }
-
-            if (targetMonth && link.classList.contains("calendar-nav")) {
-              const title = parentDocument.querySelector(".calendar-title");
-              const parsedMonth = new Date(`${targetMonth}-01T00:00:00`);
-              if (title && !Number.isNaN(parsedMonth.valueOf())) {
-                title.textContent = parsedMonth.toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                });
-              }
-            }
-
-            parentWindow.history.pushState({}, "", target.pathname + target.search);
-            setCalendarAction(`${target.search.slice(1)}&nonce=${Date.now()}`);
-            parentWindow.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
-          }, true);
-        }
-        </script>
-        """,
-        height=0,
-    )
-
 def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
         return "<div class='signal-table-wrap'><div class='empty-note'>No signals match the selected filters.</div></div>"
@@ -352,11 +266,8 @@ def main() -> None:
 
     latest_date = file_df["date"].max()
     available_dates = set(file_df["date"].tolist())
-    calendar_action = parse_calendar_action()
     query_date = first_query_value("date")
-    if calendar_action and calendar_action[0]:
-        selected_date = calendar_action[0]
-    elif query_date:
+    if query_date:
         try:
             selected_date = pd.to_datetime(query_date).date()
         except Exception:
@@ -373,9 +284,7 @@ def main() -> None:
 
     month_options = sorted({d.replace(day=1) for d in file_df["date"]})
     query_month = first_query_value("month")
-    if calendar_action and calendar_action[1]:
-        current_month = calendar_action[1]
-    elif query_month:
+    if query_month:
         try:
             current_month = pd.to_datetime(f"{query_month}-01").date()
         except Exception:
@@ -412,7 +321,6 @@ def main() -> None:
     st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
     st.markdown(render_calendar_nav(current_month, selected_date, month_options), unsafe_allow_html=True)
     st.markdown(render_calendar_grid(current_month, selected_date, available_dates), unsafe_allow_html=True)
-    install_calendar_click_bridge()
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
