@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -213,6 +214,31 @@ def first_query_value(key: str) -> str | None:
         return value[0] if value else None
     return value
 
+def install_calendar_click_bridge() -> None:
+    components.html(
+        """
+        <script>
+        const parentWindow = window.parent;
+        const parentDocument = parentWindow.document;
+
+        if (!parentWindow.__puddleCalendarClickBridge) {
+          parentWindow.__puddleCalendarClickBridge = true;
+          parentDocument.addEventListener("click", (event) => {
+            const link = event.target.closest(".calendar-nav, .calendar-day");
+            if (!link || !link.href || link.getAttribute("href") === "#") {
+              return;
+            }
+            event.preventDefault();
+            const target = new URL(link.getAttribute("href"), parentWindow.location.origin);
+            parentWindow.history.pushState({}, "", target.pathname + target.search);
+            parentWindow.dispatchEvent(new PopStateEvent("popstate", { state: {} }));
+          }, true);
+        }
+        </script>
+        """,
+        height=0,
+    )
+
 def render_signal_table(df: pd.DataFrame) -> str:
     if df.empty:
         return "<div class='signal-table-wrap'><div class='empty-note'>No signals match the selected filters.</div></div>"
@@ -321,6 +347,7 @@ def main() -> None:
     st.markdown("<div class='section-label'>Saved dates</div>", unsafe_allow_html=True)
     st.markdown(render_calendar_nav(current_month, selected_date, month_options), unsafe_allow_html=True)
     st.markdown(render_calendar_grid(current_month, selected_date, available_dates), unsafe_allow_html=True)
+    install_calendar_click_bridge()
 
     st.markdown("<div class='summary-grid'>" +
         f"<div class='summary-item'><div class='label'>Signals</div><div class='value'>{total}</div><div class='hint'>Puddle + RSI & Puddle</div></div>" +
