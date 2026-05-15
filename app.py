@@ -89,7 +89,7 @@ html, body, [class*="css"], .stApp {
 .stButton > button[kind="primary"] { background:#d8dde6!important; color:#111318!important; border-color:#d8dde6!important; }
 div[data-testid="stDownloadButton"] button { min-height:44px!important; font-size:.82rem!important; margin-top:.8rem!important; }
 .signal-table-wrap { margin-top: 1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; overflow-x:auto; }
-.signal-table { width:100%; border-collapse:collapse; min-width:920px; font-family:'DM Sans', sans-serif; }
+.signal-table { width:100%; border-collapse:collapse; min-width:980px; font-family:'DM Sans', sans-serif; }
 .signal-table thead th { padding:13px 14px; text-align:left; color:#8e8e93; font-size:.72rem; font-weight:760; letter-spacing:.055em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,.075); background:#05070d; }
 .signal-table tbody td { padding:14px; color:#e9ebef; font-size:.88rem; font-weight:560; border-bottom:1px solid rgba(255,255,255,.055); background:#05070d; vertical-align:middle; }
 .signal-table tbody tr:hover td { background:#0b0f18; }
@@ -99,7 +99,7 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
 .signal-badge { display:inline-flex; align-items:center; border-radius:999px; padding:5px 10px; font-size:.76rem; font-weight:760; border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.045); color:#e9ebef; white-space:nowrap; }
 .signal-badge.strong { background:rgba(255,107,122,.12); color:#ffb6bf; border-color:rgba(255,107,122,.22); }
 .type-badge { color:#9fb6d9; font-size:.78rem; font-weight:720; }
-.puddle-text { color:#b7bcc7; max-width:330px; }
+.puddle-text { color:#b7bcc7; min-width:220px; max-width:330px; line-height:1.34; }
 .signal-chart-header { margin-top:1rem; border-top:1px solid rgba(255,255,255,.08); padding-top:1.2rem; }
 .signal-chart-title { color:#f5f5f7; font-size:1.05rem; font-weight:760; }
 .signal-chart-subtitle { margin-top:.25rem; color:#8e8e93; font-size:.72rem; font-weight:760; letter-spacing:.05em; text-transform:uppercase; }
