@@ -11,7 +11,7 @@ Puddle Signal Scanner는 미국 대형주와 대표 ETF를 자동으로 훑어�
 이 프로젝트는 아래 일을 자동으로 합니다.
 
 ```text
-미국 대형주 / 대표 ETF 목록 준비
+미국 대형주 / AUM 상위 ETF 목록 준비
         ↓
 Yahoo Finance에서 가격 데이터 다운로드
         ↓
@@ -104,7 +104,7 @@ GitHub repo에 자동 commit / push
 
 ## 스캔 대상
 
-현재 스캔 대상은 복잡한 시총 전체 랭킹 방식이 아니라, **대형주와 대표 ETF를 단순하고 안정적으로 커버하는 방식**으로 구성되어 있습니다.
+현재 스캔 대상은 **S&P 500 / NASDAQ 100 대형주와 AUM 상위 ETF를 안정적으로 커버하는 방식**으로 구성되어 있습니다.
 
 ### 1. Stock universe
 
@@ -155,22 +155,19 @@ S&P500,NASDAQ100
 
 ### 2. ETF universe
 
-ETF는 ETFDB 같은 외부 사이트를 매번 긁어오는 방식이 아니라, 코드 안에 정의된 대표 ETF 목록을 사용합니다.
+ETF는 ETFDB의 AUM 상위 ETF 테이블을 기준으로 준비합니다.
 
-이유는 ETFDB가 GitHub Actions 서버 요청을 막는 경우가 있었기 때문입니다.
+외부 요청이 실패하면 코드 안에 정의된 AUM 상위 100개 fallback 목록을 사용합니다.
 
-현재 ETF universe는 대략 이런 종류를 포함합니다.
+즉 `rank` 컬럼은 ETF 목록에서의 수동 순번이 아니라 **ETF AUM 순위**입니다.
 
 ```text
-SPY, IVV, VOO, VTI, QQQ
-채권 ETF: AGG, BND, TLT, IEF, SHY, LQD, HYG
-섹터 ETF: XLK, XLV, XLF, XLE, XLY, XLI, XLP, XLU, XLB
-반도체 ETF: SMH, SOXX
-금/원자재 ETF: GLD, SLV, USO
-해외 ETF: VEA, VWO, EFA, EEM, EWJ, EWZ, FXI
+VOO, IVV, SPY, VTI, QQQ
+VEA, VUG, IEFA, GLD, VTV
+BND, IEMG, VXUS, AGG, IWF
 ```
 
-즉 최신 ETF 시총 랭킹을 매번 가져오는 구조는 아니지만, 대표성이 높은 ETF들을 안정적으로 스캔합니다.
+기본값은 상위 100개 ETF이며, `--etf-limit`으로 개수를 줄일 수 있습니다.
 
 ---
 
@@ -233,19 +230,23 @@ CSV 컬럼은 다음과 같습니다.
 | `date` | 실제 가격 데이터 기준 날짜입니다. 주말이나 장 휴장일이면 가장 가까운 이전 거래일 데이터가 사용될 수 있습니다. |
 | `asset_type` | `Stock` 또는 `ETF`입니다. |
 | `universe` | 종목이 어느 universe에서 왔는지 표시합니다. 예: `S&P500`, `NASDAQ100`, `S&P500,NASDAQ100`, `ETF` |
+| `rank` | 해당 universe 기준 순위입니다. S&P 500/NASDAQ 100은 지수 비중 순위, ETF는 AUM 순위입니다. Dual 종목은 예: `S&P 53 / NAS 28`처럼 양쪽 순위를 함께 표시합니다. |
 | `ticker` | 종목 티커입니다. |
+| `company_name` | 회사명 또는 ETF 이름입니다. |
+| `price` | 스캔 시점에 Yahoo quote에서 가져온 최신 가격입니다. |
+| `price_change_pct` | 스캔 시점 최신 가격 기준 전일 종가 대비 등락률입니다. |
 | `signal` | 최종 신호입니다. `Puddle` 또는 `RSI & Puddle` 값이 들어갑니다. |
-| `close` | 해당 날짜 종가입니다. |
-| `change_pct` | 전일 대비 등락률입니다. 단위는 %입니다. |
+| `close` | 신호 계산에 사용한 일봉 데이터의 해당 날짜 종가입니다. |
+| `change_pct` | 신호 계산 일자의 전일 종가 대비 등락률입니다. 단위는 %입니다. |
 | `rsi` | 14일 RSI 값입니다. |
 | `puddle` | 발생한 Puddle 단계와 설명입니다. |
 
 예시:
 
 ```csv
-scan_timestamp_utc,date,asset_type,universe,ticker,signal,close,change_pct,rsi,puddle
-2026-05-12T18:00:00+00:00,2026-05-12,Stock,"S&P500,NASDAQ100",AAPL,Puddle,182.15,-1.42,41.23,"1st: MA20, 10% cash"
-2026-05-12T18:00:00+00:00,2026-05-12,ETF,ETF,QQQ,RSI & Puddle,421.88,-2.71,29.84,"4th: MA200, RSI<=30, 100% cash, 40d"
+scan_timestamp_utc,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-05-12T18:00:00+00:00,2026-05-12,Stock,"S&P500,NASDAQ100",S&P 2 / NAS 2,AAPL,Apple Inc,182.76,-1.09,Puddle,182.15,-1.42,41.23,"1st: MA20, 10% cash"
+2026-05-12T18:00:00+00:00,2026-05-12,ETF,ETF,5,QQQ,Invesco QQQ Trust Series I,422.31,-2.61,RSI & Puddle,421.88,-2.71,29.84,"4th: MA200, RSI<=30, 100% cash, 40d"
 ```
 
 ---
@@ -270,6 +271,8 @@ Close
 ```
 
 스캐너는 종가 기준으로 이동평균선과 RSI를 계산합니다.
+
+Signal List 표의 `Price`와 `Change`는 CSV의 `price`, `price_change_pct`를 우선 사용합니다. 과거 CSV처럼 해당 컬럼이 없으면 기존 `close`, `change_pct`로 fallback합니다.
 
 ---
 
@@ -520,12 +523,12 @@ Yahoo rate limit 완화
 
 ```text
 Yahoo Finance rate limit
-Slickcharts 또는 Wikipedia 테이블 구조 변경
+Slickcharts / ETFDB / Wikipedia 테이블 구조 변경
 네트워크 일시 오류
 GitHub Actions runner 일시 문제
 ```
 
-ETFDB는 GitHub Actions에서 403 Forbidden이 발생할 수 있어 현재 사용하지 않습니다. 대신 코드 내부의 대표 ETF 목록을 사용합니다.
+ETFDB 요청이 실패하면 코드 내부의 AUM 상위 ETF fallback 목록을 사용합니다.
 
 ---
 
@@ -586,7 +589,7 @@ QQQ
 ```text
 1시간마다 자동 실행
 S&P 500 상위 100 + NASDAQ 100 통합 주식 universe
-대표 ETF 고정 universe
+AUM 상위 ETF universe
 중복 ticker 제거
 Yahoo Finance 가격 데이터 다운로드
 MA20 / MA60 / MA120 / MA200 계산

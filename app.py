@@ -118,6 +118,11 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
     .calendar-grid-static{grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-bottom:.28rem;}
     .calendar-dow{font-size:.58rem; letter-spacing:0; padding:.16rem 0;}
     .calendar-empty,.calendar-day{min-height:34px; border-radius:10px; font-size:.72rem; padding:0;}
+    div[data-testid="stPlotlyChart"], div[data-testid="stPlotlyChart"] > div,
+    div[data-testid="stPlotlyChart"] .js-plotly-plot,
+    div[data-testid="stPlotlyChart"] .plot-container,
+    div[data-testid="stPlotlyChart"] .svg-container,
+    div[data-testid="stPlotlyChart"] .main-svg{height:250px!important;}
 }
 </style>
 """
@@ -142,7 +147,7 @@ def load_scan_csv(path: str, mtime_ns: int | None = None) -> pd.DataFrame:
         df = pd.read_csv(path)
     except Exception:
         return pd.DataFrame()
-    for col in ["close", "change_pct", "rsi"]:
+    for col in ["price", "price_change_pct", "close", "change_pct", "rsi"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
     if "date" in df.columns:
@@ -168,6 +173,19 @@ def safe_num(value, suffix="") -> str:
         return f"{float(value):.2f}{suffix}"
     except Exception:
         return "--"
+
+def safe_text(value, fallback="--") -> str:
+    if value is None or pd.isna(value):
+        return fallback
+    text = str(value).strip()
+    return text if text and text.lower() != "nan" else fallback
+
+def first_non_null(row: pd.Series, keys: list[str]):
+    for key in keys:
+        value = row.get(key)
+        if value is not None and not pd.isna(value):
+            return value
+    return None
 
 def yahoo_symbol(ticker: str) -> str:
     return str(ticker or "").strip().upper().replace(".", "-")
@@ -514,17 +532,16 @@ def first_query_value(key: str) -> str | None:
 def prepare_signal_table_rows(df: pd.DataFrame) -> list[dict]:
     rows = []
     for _, row in df.iterrows():
-        rank = row.get("rank", "")
         company = str(row.get("company_name", "") or "")
         rows.append({
             "asset_type": str(row.get("asset_type", "") or ""),
             "index": normalize_index_label(row.get("universe", "")),
-            "rank": str(rank) if str(rank).strip() else "--",
+            "rank": safe_text(row.get("rank", "")),
             "ticker": str(row.get("ticker", "") or ""),
             "company": company if company.strip() else "--",
             "signal": str(row.get("signal", "") or ""),
-            "close": safe_num(row.get("close")),
-            "change": safe_num(row.get("change_pct"), "%"),
+            "price": safe_num(first_non_null(row, ["price", "close"])),
+            "change": safe_num(first_non_null(row, ["price_change_pct", "change_pct"]), "%"),
             "rsi": safe_num(row.get("rsi")),
             "puddle": str(row.get("puddle", "") or ""),
         })

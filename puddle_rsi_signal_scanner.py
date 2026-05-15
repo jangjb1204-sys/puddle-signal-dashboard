@@ -44,7 +44,9 @@ USER_AGENT = (
 )
 
 DEFAULT_STOCK_URL = "https://www.slickcharts.com/sp500"
-DEFAULT_NASDAQ100_URL = "https://en.wikipedia.org/wiki/Nasdaq-100"
+DEFAULT_NASDAQ100_URL = "https://www.slickcharts.com/nasdaq100"
+FALLBACK_NASDAQ100_URL = "https://en.wikipedia.org/wiki/Nasdaq-100"
+DEFAULT_ETF_URL = "https://etfdb.com/compare/market-cap/"
 YF_REQUEST_PAUSE_SECONDS = 3.0
 YF_RETRIES = 0
 YF_RETRY_PAUSE_SECONDS = 15.0
@@ -54,26 +56,38 @@ REFRESH_CACHE = False
 UNIVERSE_CACHE_FILENAME = "ticker_universe.json"
 OUTPUT_DIR = Path(__file__).resolve().parent / "signal_scans"
 DEFAULT_ETF_TICKERS = [
-    "SPY", "IVV", "VOO", "VTI", "QQQ", "VEA", "VTV", "IEFA", "VUG", "AGG",
-    "BND", "IEMG", "VWO", "IJH", "VIG", "IJR", "IWF", "IWM", "GLD", "IWD",
-    "VO", "VB", "VXUS", "XLK", "VGT", "SCHD", "VNQ", "XLV", "XLF", "XLE",
-    "XLY", "XLI", "XLP", "XLU", "XLB", "XLRE", "XLC", "TLT", "HYG", "LQD",
-    "TIP", "SHY", "IEF", "BIL", "SGOV", "DIA", "RSP", "MDY", "SMH", "SOXX",
-    "ARKK", "EFA", "EEM", "EWJ", "EWZ", "FXI", "VGK", "GDX", "SLV", "USO",
+    "VOO", "IVV", "SPY", "VTI", "QQQ", "VEA", "VUG", "IEFA", "GLD", "VTV",
+    "BND", "IEMG", "VXUS", "AGG", "IWF", "VWO", "VGT", "IJH", "SPYM", "VIG",
+    "IJR", "VO", "XLK", "RSP", "SCHD", "ITOT", "IAU", "EFA", "IWM", "BNDX",
+    "VYM", "VB", "SGOV", "QQQM", "IWD", "IVW", "VT", "SCHX", "VCIT", "VEU",
+    "SCHF", "IXUS", "XLF", "IBIT", "SCHG", "IVE", "QUAL", "IWR", "VV", "IEF",
+    "IWB", "SMH", "DIA", "SLV", "SPYG", "TLT", "JEPI", "BSV", "BIL", "MUB",
+    "DFAC", "VTEB", "XLV", "VCSH", "VGIT", "MBB", "SCHB", "DGRO", "SPDW", "VONG",
+    "XLE", "JPST", "VNQ", "GOVT", "IUSB", "VBR", "JEPQ", "GDX", "SPYV", "DYNF",
+    "GLDM", "VGK", "EFV", "CGDV", "XLI", "MGK", "LQD", "OEF", "IDEV", "TQQQ",
+    "BIV", "EEM", "ACWI", "VGSH", "IUSG", "JAAA", "XLC", "VXF", "USHY", "MDY",
 ]
 DEFAULT_ETF_NAMES = {
-    "SPY": "SPDR S&P 500 ETF Trust", "IVV": "iShares Core S&P 500 ETF", "VOO": "Vanguard S&P 500 ETF", "VTI": "Vanguard Total Stock Market ETF", "QQQ": "Invesco QQQ Trust",
-    "VEA": "Vanguard FTSE Developed Markets ETF", "VTV": "Vanguard Value ETF", "IEFA": "iShares Core MSCI EAFE ETF", "VUG": "Vanguard Growth ETF", "AGG": "iShares Core U.S. Aggregate Bond ETF",
-    "BND": "Vanguard Total Bond Market ETF", "IEMG": "iShares Core MSCI Emerging Markets ETF", "VWO": "Vanguard FTSE Emerging Markets ETF", "IJH": "iShares Core S&P Mid-Cap ETF", "VIG": "Vanguard Dividend Appreciation ETF",
-    "IJR": "iShares Core S&P Small-Cap ETF", "IWF": "iShares Russell 1000 Growth ETF", "IWM": "iShares Russell 2000 ETF", "GLD": "SPDR Gold Shares", "IWD": "iShares Russell 1000 Value ETF",
-    "VO": "Vanguard Mid-Cap ETF", "VB": "Vanguard Small-Cap ETF", "VXUS": "Vanguard Total International Stock ETF", "XLK": "Technology Select Sector SPDR Fund", "VGT": "Vanguard Information Technology ETF",
-    "SCHD": "Schwab U.S. Dividend Equity ETF", "VNQ": "Vanguard Real Estate ETF", "XLV": "Health Care Select Sector SPDR Fund", "XLF": "Financial Select Sector SPDR Fund", "XLE": "Energy Select Sector SPDR Fund",
-    "XLY": "Consumer Discretionary Select Sector SPDR Fund", "XLI": "Industrial Select Sector SPDR Fund", "XLP": "Consumer Staples Select Sector SPDR Fund", "XLU": "Utilities Select Sector SPDR Fund", "XLB": "Materials Select Sector SPDR Fund",
-    "XLRE": "Real Estate Select Sector SPDR Fund", "XLC": "Communication Services Select Sector SPDR Fund", "TLT": "iShares 20+ Year Treasury Bond ETF", "HYG": "iShares iBoxx High Yield Corporate Bond ETF", "LQD": "iShares iBoxx Investment Grade Corporate Bond ETF",
-    "TIP": "iShares TIPS Bond ETF", "SHY": "iShares 1-3 Year Treasury Bond ETF", "IEF": "iShares 7-10 Year Treasury Bond ETF", "BIL": "SPDR Bloomberg 1-3 Month T-Bill ETF", "SGOV": "iShares 0-3 Month Treasury Bond ETF",
-    "DIA": "SPDR Dow Jones Industrial Average ETF Trust", "RSP": "Invesco S&P 500 Equal Weight ETF", "MDY": "SPDR S&P MidCap 400 ETF Trust", "SMH": "VanEck Semiconductor ETF", "SOXX": "iShares Semiconductor ETF",
-    "ARKK": "ARK Innovation ETF", "EFA": "iShares MSCI EAFE ETF", "EEM": "iShares MSCI Emerging Markets ETF", "EWJ": "iShares MSCI Japan ETF", "EWZ": "iShares MSCI Brazil ETF",
-    "FXI": "iShares China Large-Cap ETF", "VGK": "Vanguard FTSE Europe ETF", "GDX": "VanEck Gold Miners ETF", "SLV": "iShares Silver Trust", "USO": "United States Oil Fund",
+    "VOO": "Vanguard S&P 500 ETF", "IVV": "iShares Core S&P 500 ETF", "SPY": "State Street SPDR S&P 500 ETF", "VTI": "Vanguard Total Stock Market ETF", "QQQ": "Invesco QQQ Trust Series I",
+    "VEA": "Vanguard FTSE Developed Markets ETF", "VUG": "Vanguard Growth ETF", "IEFA": "iShares Core MSCI EAFE ETF", "GLD": "SPDR Gold Shares", "VTV": "Vanguard Value ETF",
+    "BND": "Vanguard Total Bond Market ETF", "IEMG": "iShares Core MSCI Emerging Markets ETF", "VXUS": "Vanguard Total International Stock ETF", "AGG": "iShares Core U.S. Aggregate Bond ETF", "IWF": "iShares Russell 1000 Growth ETF",
+    "VWO": "Vanguard FTSE Emerging Markets ETF", "VGT": "Vanguard Information Technology ETF", "IJH": "iShares Core S&P Mid-Cap ETF", "SPYM": "State Street SPDR Portfolio S&P 500 ETF", "VIG": "Vanguard Dividend Appreciation ETF",
+    "IJR": "iShares Core S&P Small-Cap ETF", "VO": "Vanguard Mid-Cap ETF", "XLK": "State Street Technology Select Sector SPDR ETF", "RSP": "Invesco S&P 500 Equal Weight ETF", "SCHD": "Schwab US Dividend Equity ETF",
+    "ITOT": "iShares Core S&P Total U.S. Stock Market ETF", "IAU": "iShares Gold Trust", "EFA": "iShares MSCI EAFE ETF", "IWM": "iShares Russell 2000 ETF", "BNDX": "Vanguard Total International Bond ETF",
+    "VYM": "Vanguard High Dividend Yield Index ETF", "VB": "Vanguard Small Cap ETF", "SGOV": "iShares 0-3 Month Treasury Bond ETF", "QQQM": "Invesco NASDAQ 100 ETF", "IWD": "iShares Russell 1000 Value ETF",
+    "IVW": "iShares S&P 500 Growth ETF", "VT": "Vanguard Total World Stock ETF", "SCHX": "Schwab U.S. Large-Cap ETF", "VCIT": "Vanguard Intermediate-Term Corporate Bond ETF", "VEU": "Vanguard FTSE All-World ex-US Index Fund",
+    "SCHF": "Schwab International Equity ETF", "IXUS": "iShares Core MSCI Total International Stock ETF", "XLF": "State Street Financial Select Sector SPDR ETF", "IBIT": "iShares Bitcoin Trust ETF", "SCHG": "Schwab U.S. Large-Cap Growth ETF",
+    "IVE": "iShares S&P 500 Value ETF", "QUAL": "iShares MSCI USA Quality Factor ETF", "IWR": "iShares Russell Midcap ETF", "VV": "Vanguard Large Cap ETF", "IEF": "iShares 7-10 Year Treasury Bond ETF",
+    "IWB": "iShares Russell 1000 ETF", "SMH": "VanEck Semiconductor ETF", "DIA": "SPDR Dow Jones Industrial Average ETF Trust", "SLV": "iShares Silver Trust", "SPYG": "State Street SPDR Portfolio S&P 500 Growth ETF",
+    "TLT": "iShares 20+ Year Treasury Bond ETF", "JEPI": "JPMorgan Equity Premium Income Fund", "BSV": "Vanguard Short-Term Bond ETF", "BIL": "State Street SPDR Bloomberg 1-3 Month T-Bill ETF", "MUB": "iShares National Muni Bond ETF",
+    "DFAC": "Dimensional U.S. Core Equity 2 ETF", "VTEB": "Vanguard Tax-Exempt Bond ETF", "XLV": "State Street Health Care Select Sector SPDR ETF", "VCSH": "Vanguard Short-Term Corporate Bond ETF", "VGIT": "Vanguard Intermediate-Term Treasury ETF",
+    "MBB": "iShares MBS ETF", "SCHB": "Schwab U.S. Broad Market ETF", "DGRO": "iShares Core Dividend Growth ETF", "SPDW": "State Street SPDR Portfolio Developed World ex-US ETF", "VONG": "Vanguard Russell 1000 Growth ETF",
+    "XLE": "State Street Energy Select Sector SPDR ETF", "JPST": "JPMorgan Ultra-Short Income ETF", "VNQ": "Vanguard Real Estate ETF", "GOVT": "iShares U.S. Treasury Bond ETF", "IUSB": "iShares Core Total USD Bond Market ETF",
+    "VBR": "Vanguard Small Cap Value ETF", "JEPQ": "JPMorgan NASDAQ Equity Premium Income ETF", "GDX": "VanEck Gold Miners ETF", "SPYV": "State Street SPDR Portfolio S&P 500 Value ETF", "DYNF": "iShares U.S. Equity Factor Rotation Active ETF",
+    "GLDM": "SPDR Gold Minishares Trust", "VGK": "Vanguard FTSE Europe ETF", "EFV": "iShares MSCI EAFE Value ETF", "CGDV": "Capital Group Dividend Value ETF", "XLI": "State Street Industrial Select Sector SPDR ETF",
+    "MGK": "Vanguard Mega Cap Growth ETF", "LQD": "iShares iBoxx Investment Grade Corporate Bond ETF", "OEF": "iShares S&P 100 ETF", "IDEV": "iShares Core MSCI International Developed Markets ETF", "TQQQ": "ProShares UltraPro QQQ",
+    "BIV": "Vanguard Intermediate-Term Bond ETF", "EEM": "iShares MSCI Emerging Markets ETF", "ACWI": "iShares MSCI ACWI ETF", "VGSH": "Vanguard Short-Term Treasury ETF", "IUSG": "iShares Core S&P U.S. Growth ETF",
+    "JAAA": "Janus Henderson AAA CLO ETF", "XLC": "State Street Communication Services Select Sector SPDR ETF", "VXF": "Vanguard Extended Market ETF", "USHY": "iShares Broad USD High Yield Corporate Bond ETF", "MDY": "SPDR S&P MIDCAP 400 ETF Trust",
 }
 
 
@@ -104,6 +118,55 @@ def pick_column(table: pd.DataFrame, candidates: list[str]):
     for candidate in candidates:
         if candidate.lower() in lower_cols:
             return lower_cols[candidate.lower()]
+    return None
+
+
+def parse_asset_amount(value) -> float | None:
+    text = str(value or "").strip().replace("$", "").replace(",", "")
+    if not text or text == "-" or text.lower() == "nan":
+        return None
+
+    multiplier = 1.0
+    suffix = text[-1:].upper()
+    if suffix in {"T", "B", "M", "K"}:
+        text = text[:-1].strip()
+        multiplier = {"T": 1_000_000_000_000, "B": 1_000_000_000, "M": 1_000_000, "K": 1_000}[suffix]
+
+    try:
+        return float(text) * multiplier
+    except Exception:
+        return None
+
+
+def parse_float(value) -> float | None:
+    try:
+        if value is None or pd.isna(value):
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def fast_info_value(info, keys: list[str]) -> float | None:
+    for key in keys:
+        value = None
+        try:
+            value = info.get(key)
+        except Exception:
+            pass
+        if value is None:
+            try:
+                value = info[key]
+            except Exception:
+                pass
+        if value is None:
+            try:
+                value = getattr(info, key)
+            except Exception:
+                pass
+        parsed = parse_float(value)
+        if parsed is not None:
+            return parsed
     return None
 
 
@@ -166,11 +229,15 @@ def extract_tickers_with_cache(key: str, url: str, limit: int | None = None) -> 
 
 
 def extract_tickers_from_html_table(url: str, limit: int | None = None) -> list[str]:
-    records = extract_universe_records_from_html_table(url, limit)
+    records = extract_universe_records_from_html_table(url, limit, rank_from_position=True)
     return [record["ticker"] for record in records]
 
 
-def extract_universe_records_from_html_table(url: str, limit: int | None = None) -> list[dict]:
+def extract_universe_records_from_html_table(
+    url: str,
+    limit: int | None = None,
+    rank_from_position: bool = False,
+) -> list[dict]:
     headers = {"User-Agent": USER_AGENT}
     response = requests.get(url, headers=headers, timeout=20)
     response.raise_for_status()
@@ -189,10 +256,14 @@ def extract_universe_records_from_html_table(url: str, limit: int | None = None)
             if not ticker or ticker in seen:
                 continue
             seen.add(ticker)
-            rank_value = row.get(rank_col) if rank_col is not None else len(records) + 1
-            try:
-                rank = int(float(rank_value))
-            except Exception:
+            rank = None
+            if rank_col is not None:
+                rank_value = row.get(rank_col)
+                try:
+                    rank = int(float(str(rank_value).replace(",", "")))
+                except Exception:
+                    rank = None
+            elif rank_from_position:
                 rank = len(records) + 1
             name = str(row.get(name_col, "")).strip() if name_col is not None else ""
             records.append({"ticker": ticker, "name": name, "rank": rank})
@@ -201,6 +272,89 @@ def extract_universe_records_from_html_table(url: str, limit: int | None = None)
         if records:
             return records
     return []
+
+
+def extract_ranked_etf_records_from_html_table(url: str, limit: int | None = None) -> list[dict]:
+    headers = {"User-Agent": USER_AGENT}
+    response = requests.get(url, headers=headers, timeout=20)
+    response.raise_for_status()
+
+    tables = pd.read_html(StringIO(response.text))
+    for table in tables:
+        ticker_col = pick_column(table, ["symbol", "ticker", "fund"])
+        name_col = pick_column(table, ["fund name", "name", "fund"])
+        asset_col = pick_column(table, ["assets", "aum"])
+        if ticker_col is None:
+            continue
+
+        records = []
+        seen = set()
+        for _, row in table.iterrows():
+            ticker = normalize_ticker(row.get(ticker_col, ""))
+            if not ticker or ticker in seen:
+                continue
+            seen.add(ticker)
+            name = str(row.get(name_col, "")).strip() if name_col is not None else ""
+            assets = parse_asset_amount(row.get(asset_col)) if asset_col is not None else None
+            records.append({"ticker": ticker, "name": name, "assets": assets})
+
+        if not records:
+            continue
+        if any(record.get("assets") is not None for record in records):
+            records.sort(key=lambda record: record.get("assets") or -1, reverse=True)
+        for idx, record in enumerate(records, start=1):
+            record["rank"] = idx
+        return records[:limit] if limit else records
+
+    return []
+
+
+def try_extract_universe_records(
+    key: str,
+    url: str,
+    limit: int | None = None,
+    rank_from_position: bool = False,
+) -> list[dict]:
+    try:
+        return extract_universe_records_from_html_table(url, limit, rank_from_position=rank_from_position)
+    except Exception as exc:
+        print(f"{key}: universe download failed ({format_error(exc)})", flush=True)
+        return []
+
+
+def try_extract_etf_records(key: str, url: str, limit: int | None = None) -> list[dict]:
+    try:
+        return extract_ranked_etf_records_from_html_table(url, limit)
+    except Exception as exc:
+        print(f"{key}: ETF universe download failed ({format_error(exc)})", flush=True)
+        return []
+
+
+def rank_label_for_universe(meta: dict, universe: str) -> str:
+    ranks = meta.get("ranks") or {}
+    if universe == "ETF":
+        return str(meta.get("rank") or "")
+    if universe == "S&P500,NASDAQ100":
+        parts = []
+        if ranks.get("S&P500"):
+            parts.append(f"S&P {ranks['S&P500']}")
+        if ranks.get("NASDAQ100"):
+            parts.append(f"NAS {ranks['NASDAQ100']}")
+        return " / ".join(parts)
+    if ranks.get(universe):
+        return str(ranks[universe])
+    return str(meta.get("rank") or "")
+
+
+def rank_sort_value_for_universe(meta: dict, universe: str) -> int | None:
+    ranks = meta.get("ranks") or {}
+    if universe == "ETF":
+        return meta.get("rank")
+    if universe == "S&P500,NASDAQ100":
+        values = [ranks.get("S&P500"), ranks.get("NASDAQ100")]
+        values = [value for value in values if value is not None]
+        return min(values) if values else meta.get("rank")
+    return ranks.get(universe) or meta.get("rank")
 
 
 def merge_stock_universes(sp500_tickers: list[str], nasdaq100_tickers: list[str]) -> tuple[list[str], dict[str, str]]:
@@ -222,15 +376,18 @@ def merge_stock_metadata(sp500_records: list[dict], nasdaq_records: list[dict]) 
     metadata: dict[str, dict] = {}
     for record in nasdaq_records:
         ticker = record["ticker"]
-        metadata.setdefault(ticker, {})
+        metadata.setdefault(ticker, {}).setdefault("ranks", {})
         metadata[ticker].setdefault("company_name", record.get("name") or "")
-        metadata[ticker]["rank"] = record.get("rank")
+        metadata[ticker]["ranks"]["NASDAQ100"] = record.get("rank")
     for record in sp500_records:
         ticker = record["ticker"]
-        metadata.setdefault(ticker, {})
+        metadata.setdefault(ticker, {}).setdefault("ranks", {})
         if record.get("name"):
             metadata[ticker]["company_name"] = record.get("name")
-        metadata[ticker]["rank"] = record.get("rank")
+        metadata[ticker]["ranks"]["S&P500"] = record.get("rank")
+    for ticker, meta in metadata.items():
+        universe = universe_map.get(ticker, "Stock")
+        meta["rank"] = rank_sort_value_for_universe(meta, universe)
     return merged, universe_map, metadata
 
 
@@ -247,22 +404,32 @@ def load_universe(
         for idx, ticker in enumerate(stock_tickers, start=1):
             metadata[ticker] = {"company_name": "", "rank": idx}
     else:
-        sp500_records = extract_universe_records_from_html_table(DEFAULT_STOCK_URL, stock_limit)
-        nasdaq_records = extract_universe_records_from_html_table(DEFAULT_NASDAQ100_URL)
+        sp500_records = try_extract_universe_records("sp500", DEFAULT_STOCK_URL, stock_limit)
+        nasdaq_records = try_extract_universe_records("nasdaq100", DEFAULT_NASDAQ100_URL)
+        if not nasdaq_records:
+            nasdaq_records = try_extract_universe_records("nasdaq100_fallback", FALLBACK_NASDAQ100_URL)
         if not sp500_records:
             sp500_tickers = extract_tickers_with_cache("sp500_top", DEFAULT_STOCK_URL, stock_limit)
             sp500_records = [{"ticker": ticker, "name": "", "rank": idx} for idx, ticker in enumerate(sp500_tickers, start=1)]
         if not nasdaq_records:
-            nasdaq_tickers = extract_tickers_with_cache("nasdaq100", DEFAULT_NASDAQ100_URL)
-            nasdaq_records = [{"ticker": ticker, "name": "", "rank": idx} for idx, ticker in enumerate(nasdaq_tickers, start=1)]
+            nasdaq_tickers = extract_tickers_with_cache("nasdaq100", FALLBACK_NASDAQ100_URL)
+            nasdaq_records = [{"ticker": ticker, "name": "", "rank": None} for ticker in nasdaq_tickers]
         stock_tickers, stock_universe_map, metadata = merge_stock_metadata(sp500_records, nasdaq_records)
 
     if etfs_csv:
         etf_tickers = load_tickers_from_csv(etfs_csv, etf_limit)
+        etf_records = [{"ticker": ticker, "name": DEFAULT_ETF_NAMES.get(ticker, ""), "rank": idx} for idx, ticker in enumerate(etf_tickers, start=1)]
     else:
-        etf_tickers = unique_tickers(DEFAULT_ETF_TICKERS)[:etf_limit]
-    for idx, ticker in enumerate(etf_tickers, start=1):
-        metadata[ticker] = {"company_name": DEFAULT_ETF_NAMES.get(ticker, ""), "rank": idx}
+        etf_records = try_extract_etf_records("etf_aum", DEFAULT_ETF_URL, etf_limit)
+        if not etf_records:
+            etf_records = [
+                {"ticker": ticker, "name": DEFAULT_ETF_NAMES.get(ticker, ""), "rank": idx}
+                for idx, ticker in enumerate(unique_tickers(DEFAULT_ETF_TICKERS)[:etf_limit], start=1)
+            ]
+        etf_tickers = [record["ticker"] for record in etf_records]
+    for record in etf_records:
+        ticker = record["ticker"]
+        metadata[ticker] = {"company_name": record.get("name") or DEFAULT_ETF_NAMES.get(ticker, ""), "rank": record.get("rank")}
 
     return stock_tickers, etf_tickers, stock_universe_map, metadata
 
@@ -390,6 +557,37 @@ def fetch_history_with_retries(ticker: str, period: str) -> pd.DataFrame:
             else:
                 print(f"    {ticker}: {last_error}", flush=True)
     return pd.DataFrame()
+
+
+def fetch_current_quote(ticker: str) -> dict[str, float | None]:
+    try:
+        quote = yf.Ticker(ticker)
+        info = quote.fast_info
+        price = fast_info_value(
+            info,
+            ["last_price", "lastPrice", "regular_market_price", "regularMarketPrice"],
+        )
+        previous_close = fast_info_value(
+            info,
+            ["regular_market_previous_close", "regularMarketPreviousClose", "previous_close", "previousClose"],
+        )
+
+        if price is None:
+            intraday = quote.history(period="1d", interval="1m").dropna(how="all")
+            if not intraday.empty and "Close" in intraday.columns:
+                price = parse_float(intraday["Close"].dropna().iloc[-1])
+
+        change_pct = None
+        if price is not None and previous_close not in {None, 0}:
+            change_pct = round((price / previous_close - 1) * 100, 2)
+
+        return {
+            "price": round(price, 2) if price is not None else None,
+            "price_change_pct": change_pct,
+        }
+    except Exception as exc:
+        print(f"    {ticker}: quote failed ({format_error(exc)})", flush=True)
+        return {"price": None, "price_change_pct": None}
 
 
 def fetch_batch_stock_data(
@@ -610,16 +808,23 @@ def scan_batch(
         is_etf = universe_name == "etf_top"
         signal = "RSI & Puddle" if rsi_puddle_signal else "Puddle"
         actual_date = pd.to_datetime(row.get("Date")).strftime("%Y-%m-%d")
+        universe = "ETF" if is_etf else (stock_universe_map or {}).get(ticker, "Stock")
         meta = (ticker_metadata or {}).get(ticker, {})
+        display_rank = rank_label_for_universe(meta, universe)
+        sort_rank = rank_sort_value_for_universe(meta, universe)
+        current_quote = fetch_current_quote(ticker)
 
         results.append(
             {
                 "date": actual_date,
                 "asset_type": "ETF" if is_etf else "Stock",
-                "universe": "ETF" if is_etf else (stock_universe_map or {}).get(ticker, "Stock"),
-                "rank": meta.get("rank", ""),
+                "universe": universe,
+                "rank": display_rank,
+                "_sort_rank": sort_rank,
                 "ticker": ticker,
                 "company_name": meta.get("company_name", ""),
+                "price": current_quote.get("price"),
+                "price_change_pct": current_quote.get("price_change_pct"),
                 "signal": signal,
                 "close": row.get("Close"),
                 "change_pct": row.get("Change(%)"),
@@ -682,6 +887,8 @@ def scan_universe(
         "rank",
         "ticker",
         "company_name",
+        "price",
+        "price_change_pct",
         "signal",
         "close",
         "change_pct",
@@ -695,9 +902,9 @@ def scan_universe(
     df = pd.DataFrame(all_results)
     signal_rank = {"RSI & Puddle": 0, "Puddle": 1}
     df["_rank"] = df["signal"].map(signal_rank).fillna(99)
-    df["_display_rank"] = pd.to_numeric(df.get("rank"), errors="coerce").fillna(999999)
+    df["_display_rank"] = pd.to_numeric(df.get("_sort_rank"), errors="coerce").fillna(999999)
     df = df.sort_values(["date", "_rank", "asset_type", "_display_rank", "ticker"], ascending=[False, True, True, True, True])
-    return df.drop(columns=["_rank", "_display_rank"]).reset_index(drop=True)
+    return df.drop(columns=["_rank", "_display_rank", "_sort_rank"]).reset_index(drop=True)
 
 
 def daily_output_path(target_date: pd.Timestamp) -> Path:

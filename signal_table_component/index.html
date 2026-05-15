@@ -104,7 +104,7 @@
               aria-pressed="${isActive ? "true" : "false"}"
             >${escapeHtml(signal)}</button>
           </td>
-          <td class="num">${escapeHtml(row.close)}</td>
+          <td class="num">${escapeHtml(row.price)}</td>
           <td class="num">${escapeHtml(row.change)}</td>
           <td class="num">${escapeHtml(row.rsi)}</td>
           <td class="puddle-text">${escapeHtml(row.puddle)}</td>
@@ -129,7 +129,7 @@
             <thead>
               <tr>
                 <th>Type</th><th>Index</th><th>Rank</th><th>Ticker</th><th>Company</th>
-                <th>Signal</th><th>Close</th><th>Change</th><th>RSI</th><th>Puddle</th>
+                <th>Signal</th><th>Price</th><th>Change</th><th>RSI</th><th>Puddle</th>
               </tr>
             </thead>
             <tbody>${rows.map(renderRow).join("")}</tbody>
