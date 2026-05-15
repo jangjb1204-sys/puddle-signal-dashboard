@@ -751,13 +751,13 @@ def has_rsi_puddle_signal(rsi, puddle) -> bool:
         return False
 
 
-def row_on_or_before(df: pd.DataFrame, target_date: pd.Timestamp) -> pd.Series | None:
+def row_for_exact_date(df: pd.DataFrame, target_date: pd.Timestamp) -> pd.Series | None:
     if df.empty or "Date" not in df.columns:
         return None
 
     df = normalize_date_column(df)
     dates = df["Date"]
-    eligible = df.loc[dates <= target_date].copy()
+    eligible = df.loc[dates == target_date].copy()
     if eligible.empty:
         return None
 
@@ -795,7 +795,7 @@ def scan_batch(
             continue
 
         processed = process_stock_frame(raw, ticker=ticker, common_data=common_data)
-        row = row_on_or_before(processed, target_date)
+        row = row_for_exact_date(processed, target_date)
         if row is None:
             continue
 
