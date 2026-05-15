@@ -4,6 +4,7 @@ from calendar import Calendar, month_name
 from html import escape
 from pathlib import Path
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -15,6 +16,7 @@ import streamlit.components.v1 as components
 APP_DIR = Path(__file__).resolve().parent
 SCAN_DIR = APP_DIR / "signal_scans"
 THREADS_URL = "https://www.threads.net/@30s_tech_j"
+CENTRAL_TZ = ZoneInfo("America/Chicago")
 CACHE_TTL_SECONDS = 60
 CHART_CACHE_TTL_SECONDS = 60 * 60 * 6
 calendar_component = components.declare_component("puddle_calendar", path=str(APP_DIR / "calendar_component"))
@@ -202,6 +204,17 @@ def safe_text(value, fallback="--") -> str:
         return fallback
     text = str(value).strip()
     return text if text and text.lower() != "nan" else fallback
+
+def central_time_label(value) -> str:
+    try:
+        timestamp = pd.to_datetime(value, errors="raise")
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.tz_localize(CENTRAL_TZ)
+        else:
+            timestamp = timestamp.tz_convert(CENTRAL_TZ)
+        return timestamp.strftime("%H:%M CT")
+    except Exception:
+        return "--"
 
 def first_non_null(row: pd.Series, keys: list[str]):
     for key in keys:
@@ -670,10 +683,12 @@ def main() -> None:
     df = load_scan_csv(selected_row["path"], int(selected_row.get("mtime_ns", 0)))
 
     scan_time = "--"
-    if not df.empty and "scan_timestamp_utc" in df.columns:
-        times = df["scan_timestamp_utc"].dropna()
-        if not times.empty:
-            scan_time = str(times.iloc[0])[11:16]
+    for timestamp_col in ["scan_timestamp_ct", "scan_timestamp_utc"]:
+        if not df.empty and timestamp_col in df.columns:
+            times = df[timestamp_col].dropna()
+            if not times.empty:
+                scan_time = central_time_label(times.iloc[0])
+                break
 
     total = len(df)
     rsi_puddle = int((df.get("signal") == "RSI & Puddle").sum()) if not df.empty and "signal" in df.columns else 0

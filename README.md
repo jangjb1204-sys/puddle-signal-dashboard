@@ -52,6 +52,8 @@ GitHub Actions의 cron은 UTC 기준입니다. 즉 매시 정각에 실행됩니
 ...
 ```
 
+다만 대시보드의 UPDATED 시각과 CSV의 스캔 timestamp는 `America/Chicago` 기준 CT로 저장/표시합니다.
+
 수동 실행도 가능합니다.
 
 ```text
@@ -226,7 +228,7 @@ CSV 컬럼은 다음과 같습니다.
 
 | 컬럼 | 설명 |
 |---|---|
-| `scan_timestamp_utc` | 스캐너가 실행된 UTC 기준 시각입니다. |
+| `scan_timestamp_ct` | 스캐너가 실행된 미국 중부시간 기준 시각입니다. `America/Chicago` 기준이라 계절에 따라 CST/CDT 오프셋이 자동 반영됩니다. |
 | `date` | 실제 가격 데이터 기준 날짜입니다. 주말이나 장 휴장일이면 가장 가까운 이전 거래일 데이터가 사용될 수 있습니다. |
 | `asset_type` | `Stock` 또는 `ETF`입니다. |
 | `universe` | 종목이 어느 universe에서 왔는지 표시합니다. 예: `S&P500`, `NASDAQ100`, `S&P500,NASDAQ100`, `ETF` |
@@ -244,9 +246,9 @@ CSV 컬럼은 다음과 같습니다.
 예시:
 
 ```csv
-scan_timestamp_utc,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-05-12T18:00:00+00:00,2026-05-12,Stock,"S&P500,NASDAQ100",S&P 2 / NAS 2,AAPL,Apple Inc,182.76,-1.09,Puddle,182.15,-1.42,41.23,"1st: MA20, 10% cash"
-2026-05-12T18:00:00+00:00,2026-05-12,ETF,ETF,5,QQQ,Invesco QQQ Trust Series I,422.31,-2.61,RSI & Puddle,421.88,-2.71,29.84,"4th: MA200, RSI<=30, 100% cash, 40d"
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-05-12T13:00:00-05:00,2026-05-12,Stock,"S&P500,NASDAQ100",S&P 2 / NAS 2,AAPL,Apple Inc,182.76,-1.09,Puddle,182.15,-1.42,41.23,"1st: MA20, 10% cash"
+2026-05-12T13:00:00-05:00,2026-05-12,ETF,ETF,5,QQQ,Invesco QQQ Trust Series I,422.31,-2.61,RSI & Puddle,421.88,-2.71,29.84,"4th: MA200, RSI<=30, 100% cash, 40d"
 ```
 
 ---

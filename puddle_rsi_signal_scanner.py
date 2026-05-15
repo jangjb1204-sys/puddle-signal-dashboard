@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 from io import StringIO
 from pathlib import Path
 from typing import Iterable
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -43,6 +44,7 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
 )
 
+CENTRAL_TZ = ZoneInfo("America/Chicago")
 DEFAULT_STOCK_URL = "https://www.slickcharts.com/sp500"
 DEFAULT_NASDAQ100_URL = "https://www.slickcharts.com/nasdaq100"
 FALLBACK_NASDAQ100_URL = "https://en.wikipedia.org/wiki/Nasdaq-100"
@@ -880,7 +882,7 @@ def scan_universe(
                 time.sleep(pause_seconds)
 
     columns = [
-        "scan_timestamp_utc",
+        "scan_timestamp_ct",
         "date",
         "asset_type",
         "universe",
@@ -916,7 +918,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Scan large-cap stocks and ETFs for Puddle / RSI & Puddle signals."
     )
-    parser.add_argument("--date", help="Scan date in YYYY-MM-DD. Defaults to today UTC.")
+    parser.add_argument("--date", help="Scan date in YYYY-MM-DD. Defaults to today in America/Chicago.")
     parser.add_argument("--period", default="2y", help="Historical download period. Default: 2y.")
     parser.add_argument("--stock-limit", type=int, default=100, help="Number of S&P 500 stock tickers. Nasdaq 100 is added separately.")
     parser.add_argument("--etf-limit", type=int, default=100, help="Number of ETF tickers.")
@@ -939,15 +941,17 @@ def main() -> None:
     global CACHE_DIR, CACHE_MAX_HOURS, REFRESH_CACHE
 
     args = parse_args()
-    scan_timestamp = datetime.now(timezone.utc).replace(second=0, microsecond=0)
+    scan_timestamp_utc = datetime.now(timezone.utc).replace(second=0, microsecond=0)
+    scan_timestamp_ct = scan_timestamp_utc.astimezone(CENTRAL_TZ)
     YF_REQUEST_PAUSE_SECONDS = max(0.0, args.request_pause)
     YF_RETRIES = max(0, args.retries)
     YF_RETRY_PAUSE_SECONDS = max(0.0, args.retry_pause)
     CACHE_DIR = Path(args.cache_dir).expanduser()
     CACHE_MAX_HOURS = max(0.0, args.cache_max_hours)
     REFRESH_CACHE = bool(args.refresh_cache)
-    target_date = pd.Timestamp(args.date or scan_timestamp.date()).normalize()
-    print(f"Scan timestamp UTC: {scan_timestamp.isoformat()}", flush=True)
+    target_date = pd.Timestamp(args.date or scan_timestamp_ct.date()).normalize()
+    print(f"Scan timestamp CT:  {scan_timestamp_ct.isoformat()}", flush=True)
+    print(f"Scan timestamp UTC: {scan_timestamp_utc.isoformat()}", flush=True)
     print(f"Yahoo cache: {CACHE_DIR}", flush=True)
 
     stock_tickers, etf_tickers, stock_universe_map, ticker_metadata = load_universe(
@@ -981,7 +985,7 @@ def main() -> None:
             "빠른 테스트는 --stock-limit 2 --etf-limit 2 처럼 작은 범위로 먼저 해보는 게 좋습니다."
         ) from exc
 
-    result.insert(0, "scan_timestamp_utc", scan_timestamp.isoformat())
+    result.insert(0, "scan_timestamp_ct", scan_timestamp_ct.isoformat())
 
     output_path = Path(args.output) if args.output else daily_output_path(target_date)
     output_path.parent.mkdir(parents=True, exist_ok=True)
