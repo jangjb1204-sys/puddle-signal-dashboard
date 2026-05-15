@@ -118,12 +118,15 @@ div[data-testid="stDownloadButton"] button { min-height:44px!important; font-siz
     .calendar-grid-static{grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-bottom:.28rem;}
     .calendar-dow{font-size:.58rem; letter-spacing:0; padding:.16rem 0;}
     .calendar-empty,.calendar-day{min-height:34px; border-radius:10px; font-size:.72rem; padding:0;}
-    div[data-testid="stDownloadButton"] button{margin-top:.25rem!important;}
+    div[data-testid="stPlotlyChart"]{margin-bottom:.3rem!important;}
+    div[data-testid="stDownloadButton"]{margin-top:.15rem!important;}
+    div[data-testid="stDownloadButton"] button{margin-top:0!important;}
+    .creator-footer{margin:1rem 0 .25rem;}
     div[data-testid="stPlotlyChart"], div[data-testid="stPlotlyChart"] > div,
     div[data-testid="stPlotlyChart"] .js-plotly-plot,
     div[data-testid="stPlotlyChart"] .plot-container,
     div[data-testid="stPlotlyChart"] .svg-container,
-    div[data-testid="stPlotlyChart"] .main-svg{height:350px!important;}
+    div[data-testid="stPlotlyChart"] .main-svg{height:300px!important;}
 }
 </style>
 """
