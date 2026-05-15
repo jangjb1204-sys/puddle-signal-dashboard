@@ -232,7 +232,7 @@ CSV 컬럼은 다음과 같습니다.
 | `date` | 실제 가격 데이터 기준 날짜입니다. 주말이나 장 휴장일이면 가장 가까운 이전 거래일 데이터가 사용될 수 있습니다. |
 | `asset_type` | `Stock` 또는 `ETF`입니다. |
 | `universe` | 종목이 어느 universe에서 왔는지 표시합니다. 예: `S&P500`, `NASDAQ100`, `S&P500,NASDAQ100`, `ETF` |
-| `rank` | 해당 universe 기준 순위입니다. S&P 500/NASDAQ 100은 지수 비중 순위, ETF는 AUM 순위입니다. Dual 종목은 예: `S&P 53 / NAS 28`처럼 양쪽 순위를 함께 표시합니다. |
+| `rank` | 해당 universe 기준 순위입니다. S&P 500/NASDAQ 100은 지수 비중 순위, ETF는 AUM 순위입니다. Dual 종목은 예: `S53/N28`처럼 양쪽 순위를 짧게 표시합니다. |
 | `ticker` | 종목 티커입니다. |
 | `company_name` | 회사명 또는 ETF 이름입니다. |
 | `price` | 스캔 시점에 Yahoo quote에서 가져온 최신 가격입니다. |
@@ -247,7 +247,7 @@ CSV 컬럼은 다음과 같습니다.
 
 ```csv
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-05-12T13:00:00-05:00,2026-05-12,Stock,"S&P500,NASDAQ100",S&P 2 / NAS 2,AAPL,Apple Inc,182.76,-1.09,Puddle,182.15,-1.42,41.23,"1st: MA20, 10% cash"
+2026-05-12T13:00:00-05:00,2026-05-12,Stock,"S&P500,NASDAQ100",S2/N2,AAPL,Apple Inc,182.76,-1.09,Puddle,182.15,-1.42,41.23,"1st: MA20, 10% cash"
 2026-05-12T13:00:00-05:00,2026-05-12,ETF,ETF,5,QQQ,Invesco QQQ Trust Series I,422.31,-2.61,RSI & Puddle,421.88,-2.71,29.84,"4th: MA200, RSI<=30, 100% cash, 40d"
 ```
 

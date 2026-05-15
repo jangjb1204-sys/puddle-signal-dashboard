@@ -339,10 +339,10 @@ def rank_label_for_universe(meta: dict, universe: str) -> str:
     if universe == "S&P500,NASDAQ100":
         parts = []
         if ranks.get("S&P500"):
-            parts.append(f"S&P {ranks['S&P500']}")
+            parts.append(f"S{ranks['S&P500']}")
         if ranks.get("NASDAQ100"):
-            parts.append(f"NAS {ranks['NASDAQ100']}")
-        return " / ".join(parts)
+            parts.append(f"N{ranks['NASDAQ100']}")
+        return "/".join(parts)
     if ranks.get(universe):
         return str(ranks[universe])
     return str(meta.get("rank") or "")

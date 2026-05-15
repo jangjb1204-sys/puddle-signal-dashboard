@@ -1,8 +1,8 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
 2026-05-12T17:18:00-05:00,2026-05-05,Stock,NASDAQ100,75,EA,Electronic Arts,,,RSI & Puddle,201.57,-0.12,29.07,"2nd: MA60, 50% cash, 5d"
-2026-05-12T17:18:00-05:00,2026-05-05,Stock,"S&P500,NASDAQ100",S&P 1 / NAS 1,NVDA,NVIDIA Corp,,,Puddle,196.5,-1.0,47.58,"1st: MA20, 10% cash"
+2026-05-12T17:18:00-05:00,2026-05-05,Stock,"S&P500,NASDAQ100",S1/N1,NVDA,NVIDIA Corp,,,Puddle,196.5,-1.0,47.58,"1st: MA20, 10% cash"
 2026-05-12T17:18:00-05:00,2026-05-05,Stock,S&P500,17,V,Visa Inc,,,Puddle,322.03,-1.47,55.76,"3rd: MA120, 50% cash, 5d"
-2026-05-12T17:18:00-05:00,2026-05-05,Stock,"S&P500,NASDAQ100",S&P 34 / NAS 20,PLTR,Palantir Technologies Inc,,,Puddle,135.91,-6.93,43.41,"2nd: MA60, 50% cash, 5d"
+2026-05-12T17:18:00-05:00,2026-05-05,Stock,"S&P500,NASDAQ100",S34/N20,PLTR,Palantir Technologies Inc,,,Puddle,135.91,-6.93,43.41,"2nd: MA60, 50% cash, 5d"
 2026-05-12T17:18:00-05:00,2026-05-05,Stock,NASDAQ100,41,SHOP,Shopify,,,Puddle,107.63,-15.62,31.73,"2nd: MA60, 50% cash, 5d"
 2026-05-12T17:18:00-05:00,2026-05-05,Stock,S&P500,47,AXP,American Express Co,,,Puddle,315.95,-1.02,38.19,"2nd: MA60, 50% cash, 5d"
 2026-05-12T17:18:00-05:00,2026-05-05,Stock,NASDAQ100,67,DASH,DoorDash,,,Puddle,166.14,-3.73,35.96,"2nd: MA60, 50% cash, 5d"

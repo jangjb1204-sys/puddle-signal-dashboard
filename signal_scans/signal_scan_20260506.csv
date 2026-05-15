@@ -1,11 +1,11 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
 2026-05-12T17:18:00-05:00,2026-05-06,ETF,ETF,71,XLE,Energy Select Sector SPDR Fund,,,Puddle,57.0,-4.12,52.01,"2nd: MA60, 50% cash, 5d"
 2026-05-12T17:18:00-05:00,2026-05-06,ETF,ETF,,XLU,Utilities Select Sector SPDR Fund,,,Puddle,45.71,-1.42,44.43,"2nd: MA60, 50% cash, 5d"
-2026-05-12T17:18:00-05:00,2026-05-06,Stock,"S&P500,NASDAQ100",S&P 21 / NAS 15,COST,Costco Wholesale Corp,,,Puddle,995.75,-2.03,54.84,"2nd: MA60, 50% cash, 5d"
+2026-05-12T17:18:00-05:00,2026-05-06,Stock,"S&P500,NASDAQ100",S21/N15,COST,Costco Wholesale Corp,,,Puddle,995.75,-2.03,54.84,"2nd: MA60, 50% cash, 5d"
 2026-05-12T17:18:00-05:00,2026-05-06,Stock,S&P500,16,XOM,Exxon Mobil Corp,,,Puddle,148.69,-4.0,44.27,"2nd: MA60, 50% cash, 5d"
 2026-05-12T17:18:00-05:00,2026-05-06,Stock,S&P500,26,ABBV,AbbVie Inc,,,Puddle,205.03,-0.52,44.88,"1st: MA20, 10% cash"
 2026-05-12T17:18:00-05:00,2026-05-06,Stock,S&P500,27,CVX,Chevron Corp,,,Puddle,185.16,-3.88,45.44,"2nd: MA60, 50% cash, 5d"
-2026-05-12T17:18:00-05:00,2026-05-06,Stock,"S&P500,NASDAQ100",S&P 53 / NAS 28,TMUS,T-Mobile US Inc,,,Puddle,193.16,-0.59,45.93,"1st: MA20, 10% cash"
+2026-05-12T17:18:00-05:00,2026-05-06,Stock,"S&P500,NASDAQ100",S53/N28,TMUS,T-Mobile US Inc,,,Puddle,193.16,-0.59,45.93,"1st: MA20, 10% cash"
 2026-05-12T17:18:00-05:00,2026-05-06,Stock,NASDAQ100,45,INTU,Intuit,,,Puddle,388.55,-2.45,50.58,"1st: MA20, 10% cash"
 2026-05-12T17:18:00-05:00,2026-05-06,Stock,S&P500,48,C,Citigroup Inc,,,Puddle,127.6,-0.32,46.54,"1st: MA20, 10% cash"
 2026-05-12T17:18:00-05:00,2026-05-06,Stock,NASDAQ100,49,ADBE,Adobe Inc.,,,Puddle,250.17,-2.13,51.45,"2nd: MA60, 50% cash, 5d"
