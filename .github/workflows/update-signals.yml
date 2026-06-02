@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-signals-main
+  cancel-in-progress: false
+
 jobs:
   update-signals:
     runs-on: ubuntu-latest
@@ -48,5 +52,6 @@ jobs:
             echo "No signal CSV changes to commit."
           else
             git commit -m "Update daily signal scan"
+            git pull --rebase origin main
             git push
           fi
