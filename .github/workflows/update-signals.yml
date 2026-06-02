@@ -37,12 +37,13 @@ jobs:
       - name: Run scanner
         run: |
           python puddle_rsi_signal_scanner.py --cache-max-hours 18 --request-pause 2
+          python build_signal_index.py
 
       - name: Commit updated signal CSV
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add signal_scans/*.csv
+          git add signal_scans/*.csv signal_scans/index.json
           if git diff --cached --quiet; then
             echo "No signal CSV changes to commit."
           else
