@@ -1,7 +1,7 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-06-04T16:01:00-05:00,2026-06-04,Stock,"S&P500,NASDAQ100",S7/N7,AVGO,Broadcom Inc,418.91,-12.59,Puddle,414.2,-13.57,42.65,"1st: MA20, 10% cash"
-2026-06-04T16:01:00-05:00,2026-06-04,Stock,S&P500,38,HD,Home Depot Inc/The,309.95,-0.96,Puddle,310.74,-0.71,56.14,"1st: MA20, 10% cash"
-2026-06-04T16:01:00-05:00,2026-06-04,Stock,"S&P500,NASDAQ100",S87/N40,HON,Honeywell International Inc,217.64,-2.52,Puddle,221.05,-0.99,55.0,"3rd: MA120, 50% cash, 5d"
-2026-06-04T16:01:00-05:00,2026-06-04,Stock,NASDAQ100,64,LITE,Lumentum Holdings Inc. Common Stock,945.08,0.75,Puddle,901.0,-3.94,42.27,"1st: MA20, 10% cash"
-2026-06-04T16:01:00-05:00,2026-06-04,Stock,NASDAQ100,80,EXC,Exelon Corporation,44.63,-1.0,Puddle,44.17,-2.02,48.38,"1st: MA20, 10% cash"
-2026-06-04T16:01:00-05:00,2026-06-04,Stock,NASDAQ100,96,KHC,The Kraft Heinz Company Common Stock,22.47,-1.27,Puddle,22.67,-0.4,41.75,"2nd: MA60, 50% cash, 5d"
+2026-06-04T18:09:00-05:00,2026-06-04,Stock,"S&P500,NASDAQ100",S7/N7,AVGO,Broadcom Inc,418.91,-12.59,Puddle,414.2,-13.57,42.65,"1st: MA20, 10% cash"
+2026-06-04T18:09:00-05:00,2026-06-04,Stock,S&P500,38,HD,Home Depot Inc/The,309.95,-0.96,Puddle,310.74,-0.71,56.14,"1st: MA20, 10% cash"
+2026-06-04T18:09:00-05:00,2026-06-04,Stock,"S&P500,NASDAQ100",S87/N40,HON,Honeywell International Inc,217.64,-2.52,Puddle,221.05,-0.99,55.0,"3rd: MA120, 50% cash, 5d"
+2026-06-04T18:09:00-05:00,2026-06-04,Stock,NASDAQ100,65,LITE,Lumentum Holdings Inc. Common Stock,945.08,0.75,Puddle,901.0,-3.94,42.27,"1st: MA20, 10% cash"
+2026-06-04T18:09:00-05:00,2026-06-04,Stock,NASDAQ100,80,EXC,Exelon Corporation,44.63,-1.0,Puddle,44.17,-2.02,48.38,"1st: MA20, 10% cash"
+2026-06-04T18:09:00-05:00,2026-06-04,Stock,NASDAQ100,96,KHC,The Kraft Heinz Company Common Stock,22.47,-1.27,Puddle,22.67,-0.4,41.75,"2nd: MA60, 50% cash, 5d"
