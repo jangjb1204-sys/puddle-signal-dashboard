@@ -445,6 +445,35 @@ def fetch_common_market_data(period: str = "2y") -> dict:
         ("skew", "^SKEW", "SKEW"),
     ]
 
+    def normalize_market_frame(raw: pd.DataFrame, ticker_sym: str, col_name: str) -> pd.DataFrame:
+        if raw.empty:
+            return pd.DataFrame()
+        if isinstance(raw.columns, pd.MultiIndex):
+            frame = raw[ticker_sym][["Close"]].dropna(how="all").rename(columns={"Close": col_name})
+        else:
+            frame = raw[["Close"]].dropna(how="all").rename(columns={"Close": col_name})
+        frame = frame.reset_index()
+        if "Date" not in frame.columns:
+            frame = frame.rename(columns={frame.columns[0]: "Date"})
+        frame = normalize_date_column(frame)
+        frame[col_name] = frame[col_name].round(2)
+        return frame
+
+    try:
+        symbols = [ticker_sym for _, ticker_sym, _ in market_specs]
+        raw = yf.download(
+            tickers=symbols,
+            period=period,
+            group_by="ticker",
+            auto_adjust=False,
+            progress=False,
+            threads=True,
+        )
+        for key, ticker_sym, col_name in market_specs:
+            results[key] = normalize_market_frame(raw, ticker_sym, col_name)
+    except Exception as exc:
+        print(f"Common market data bundle: failed ({format_error(exc)})", flush=True)
+
     def fetch_market_series(spec):
         key, ticker_sym, col_name = spec
         try:
@@ -463,6 +492,8 @@ def fetch_common_market_data(period: str = "2y") -> dict:
             return key, pd.DataFrame()
 
     for spec in market_specs:
+        if spec[0] in results and not results[spec[0]].empty:
+            continue
         key, df = fetch_market_series(spec)
         results[key] = df
         time.sleep(YF_REQUEST_PAUSE_SECONDS)
@@ -561,6 +592,37 @@ def fetch_history_with_retries(ticker: str, period: str) -> pd.DataFrame:
     return pd.DataFrame()
 
 
+def normalize_downloaded_history(raw: pd.DataFrame, ticker: str) -> pd.DataFrame:
+    if raw.empty:
+        return pd.DataFrame()
+    if isinstance(raw.columns, pd.MultiIndex):
+        data = raw[ticker].dropna(how="all").reset_index()
+    else:
+        data = raw.dropna(how="all").reset_index()
+    if data.empty:
+        return pd.DataFrame()
+    if "Date" not in data.columns:
+        data = data.rename(columns={data.columns[0]: "Date"})
+    return normalize_date_column(data)
+
+
+def download_history_batch(tickers: list[str], period: str) -> pd.DataFrame:
+    return yf.download(
+        tickers=tickers,
+        period=period,
+        group_by="ticker",
+        auto_adjust=False,
+        progress=False,
+        threads=True,
+    )
+
+
+def empty_yahoo_frame() -> pd.DataFrame:
+    data = pd.DataFrame()
+    data.attrs["source"] = "yahoo"
+    return data
+
+
 def fetch_current_quote(ticker: str) -> dict[str, float | None]:
     try:
         quote = yf.Ticker(ticker)
@@ -603,30 +665,80 @@ def fetch_batch_stock_data(
 
     results = {}
     total = progress_total or len(tickers)
+    pending = []
+    stale_cache = {}
     for index, ticker in enumerate(tickers, start=1):
         progress_index = progress_start + index
-        print(f"  [{progress_index}/{total}] Downloading {ticker}...", flush=True)
+        cached = None if REFRESH_CACHE else load_history_cache(ticker, period)
+        if cached is not None:
+            results[ticker] = cached
+            print(f"  [{progress_index}/{total}] {ticker}: {len(cached)} rows", flush=True)
+            continue
+        stale_cache[ticker] = load_history_cache(ticker, period, allow_stale=True)
+        pending.append((progress_index, ticker))
+
+    if not pending:
+        return results
+
+    pending_tickers = [ticker for _, ticker in pending]
+    last_error = ""
+    for attempt in range(1, YF_RETRIES + 2):
         try:
-            data = fetch_history_with_retries(ticker, period=period)
-            if data.empty:
-                results[ticker] = pd.DataFrame()
-                print(f"  [{progress_index}/{total}] {ticker}: no data", flush=True)
-                continue
-            if "Date" not in data.columns:
-                data = data.rename(columns={data.columns[0]: "Date"})
-            source = data.attrs.get("source", "yahoo")
-            data = normalize_date_column(data)
-            data.attrs["source"] = source
-            results[ticker] = data
-            print(f"  [{progress_index}/{total}] {ticker}: {len(data)} rows", flush=True)
-        except YahooRateLimitError:
-            print(f"  [{progress_index}/{total}] {ticker}: stopped by Yahoo rate limit", flush=True)
-            raise
+            print(f"  Downloading {len(pending_tickers)} tickers in one Yahoo batch...", flush=True)
+            raw = download_history_batch(pending_tickers, period=period)
+            for progress_index, ticker in pending:
+                try:
+                    data = normalize_downloaded_history(raw, ticker)
+                    if data.empty:
+                        cached = stale_cache.get(ticker)
+                        if cached is not None:
+                            cached.attrs["source"] = "stale_cache"
+                            results[ticker] = cached
+                            print(f"  [{progress_index}/{total}] {ticker}: using stale cache after empty batch result", flush=True)
+                            continue
+                        results[ticker] = empty_yahoo_frame()
+                        print(f"  [{progress_index}/{total}] {ticker}: no data", flush=True)
+                        continue
+                    data.attrs["source"] = "yahoo"
+                    save_history_cache(ticker, period, data)
+                    results[ticker] = data
+                    print(f"  [{progress_index}/{total}] {ticker}: {len(data)} rows", flush=True)
+                except Exception as exc:
+                    cached = stale_cache.get(ticker)
+                    if cached is not None:
+                        cached.attrs["source"] = "stale_cache"
+                        results[ticker] = cached
+                        print(f"  [{progress_index}/{total}] {ticker}: using stale cache after batch parse failure", flush=True)
+                    else:
+                        results[ticker] = empty_yahoo_frame()
+                        print(f"  [{progress_index}/{total}] {ticker}: failed ({format_error(exc)})", flush=True)
+            return results
         except Exception as exc:
-            results[ticker] = pd.DataFrame()
-            print(f"  [{progress_index}/{total}] {ticker}: failed ({format_error(exc)})", flush=True)
-        if results.get(ticker, pd.DataFrame()).attrs.get("source") not in {"cache", "stale_cache"}:
-            time.sleep(YF_REQUEST_PAUSE_SECONDS)
+            last_error = format_error(exc)
+            if is_yahoo_rate_limit_error(exc) and attempt > YF_RETRIES:
+                missing_stale = []
+                for progress_index, ticker in pending:
+                    cached = stale_cache.get(ticker)
+                    if cached is not None:
+                        cached.attrs["source"] = "stale_cache"
+                        results[ticker] = cached
+                        print(f"  [{progress_index}/{total}] {ticker}: using stale cache because Yahoo is rate limited", flush=True)
+                    else:
+                        missing_stale.append(ticker)
+                if missing_stale:
+                    raise YahooRateLimitError(last_error) from exc
+                return results
+            if attempt <= YF_RETRIES:
+                print(
+                    f"  Yahoo batch: {last_error}; retrying in {YF_RETRY_PAUSE_SECONDS:g}s "
+                    f"({attempt}/{YF_RETRIES})",
+                    flush=True,
+                )
+                time.sleep(YF_RETRY_PAUSE_SECONDS)
+            else:
+                print(f"  Yahoo batch: {last_error}", flush=True)
+    for _, ticker in pending:
+        results.setdefault(ticker, empty_yahoo_frame())
     return results
 
 
@@ -783,11 +895,7 @@ def scan_batch(
         progress_total=progress_total,
     )
     results = []
-    used_yahoo = any(
-        frame.attrs.get("source") not in {"cache", "stale_cache"}
-        for frame in raw_frames.values()
-        if not frame.empty
-    )
+    used_yahoo = any(frame.attrs.get("source") == "yahoo" for frame in raw_frames.values())
 
     for ticker in tickers:
         raw = raw_frames.get(ticker, pd.DataFrame())
@@ -924,8 +1032,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--etf-limit", type=int, default=100, help="Number of ETF tickers.")
     parser.add_argument("--stocks-csv", help="Optional CSV containing stock tickers.")
     parser.add_argument("--etfs-csv", help="Optional CSV containing ETF tickers.")
-    parser.add_argument("--batch-size", type=int, default=1, help="Batch download size.")
-    parser.add_argument("--pause", type=float, default=1.0, help="Pause between batches in seconds.")
+    parser.add_argument("--batch-size", type=int, default=50, help="Batch download size.")
+    parser.add_argument("--pause", type=float, default=2.0, help="Pause between batches in seconds.")
     parser.add_argument("--request-pause", type=float, default=YF_REQUEST_PAUSE_SECONDS, help="Pause after each Yahoo request.")
     parser.add_argument("--retries", type=int, default=YF_RETRIES, help="Retries per Yahoo request.")
     parser.add_argument("--retry-pause", type=float, default=YF_RETRY_PAUSE_SECONDS, help="Pause before retrying a Yahoo request.")
