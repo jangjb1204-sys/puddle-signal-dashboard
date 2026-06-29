@@ -1,0 +1,11 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-06-29T09:04:00-05:00,2026-06-29,ETF,ETF,42,IXUS,iShares Core MSCI Total International Stock ETF,94.01,-0.27,Puddle,94.01,-0.27,49.33,"2nd: MA60, 50% cash, 5d"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,NASDAQ100,13,ASML,ASML Holding NV,1789.96,-0.26,Puddle,1789.54,-0.28,52.49,"1st: MA20, 10% cash"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,S&P500,33,PG,Procter & Gamble Co/The,148.23,-0.53,Puddle,148.23,-0.53,56.86,"3rd: MA120, 50% cash, 5d"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,"S&P500,NASDAQ100",S80/N37,GILD,Gilead Sciences Inc,126.18,-1.33,Puddle,126.18,-1.33,46.5,"1st: MA20, 10% cash"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,S&P500,58,ANET,Arista Networks Inc,157.02,-0.36,Puddle,157.01,-0.37,50.5,"2nd: MA60, 50% cash, 5d"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,"S&P500,NASDAQ100",S79/N58,HON,Honeywell International Inc,247.87,-46.63,Puddle,247.85,-46.63,53.49,"1st: MA20, 10% cash"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,NASDAQ100,63,NXPI,NXP Semiconductors N.V.,275.19,-0.66,Puddle,275.14,-0.68,41.09,"2nd: MA60, 50% cash, 5d"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,S&P500,66,TMO,Thermo Fisher Scientific Inc,504.33,-1.7,Puddle,504.11,-1.74,63.57,"3rd: MA120, 50% cash, 5d"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,NASDAQ100,67,ROST,Ross Stores Inc,210.24,-1.42,Puddle,210.24,-1.42,33.14,"3rd: MA120, 50% cash, 5d"
+2026-06-29T09:04:00-05:00,2026-06-29,Stock,S&P500,68,VZ,Verizon Communications Inc,43.77,-5.95,Puddle,43.78,-5.93,42.77,"1st: MA20, 10% cash"
