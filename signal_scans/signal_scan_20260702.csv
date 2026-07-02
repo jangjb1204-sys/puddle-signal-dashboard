@@ -1,7 +1,7 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-07-02T15:18:00-05:00,2026-07-02,ETF,ETF,30,BNDX,Vanguard Total International Bond ETF,48.24,-0.06,Puddle,48.24,-0.06,53.57,"1st: MA20, 10% cash"
-2026-07-02T15:18:00-05:00,2026-07-02,ETF,ETF,97,XLC,State Street Communication Services Select Sector SPDR ETF,109.6,-0.13,Puddle,109.29,-0.41,40.76,"1st: MA20, 10% cash"
-2026-07-02T15:18:00-05:00,2026-07-02,Stock,NASDAQ100,37,SHOP,Shopify Inc. Class A subordinate voting shares,119.46,-1.78,Puddle,120.07,-1.28,61.92,"3rd: MA120, 50% cash, 5d"
-2026-07-02T15:18:00-05:00,2026-07-02,Stock,NASDAQ100,54,CMCSA,Comcast Corp,23.79,0.25,Puddle,23.41,-1.35,45.63,"1st: MA20, 10% cash"
-2026-07-02T15:18:00-05:00,2026-07-02,Stock,NASDAQ100,60,ORLY,"O'Reilly Automotive, Inc.",90.25,-2.63,Puddle,91.51,-1.27,54.09,"3rd: MA120, 50% cash, 5d"
-2026-07-02T15:18:00-05:00,2026-07-02,Stock,NASDAQ100,67,WBD,"Warner Bros. Discovery, Inc. Series A Common Stock",26.48,-1.23,Puddle,26.7,-0.41,47.79,"1st: MA20, 10% cash"
+2026-07-02T17:07:00-05:00,2026-07-02,ETF,ETF,30,BNDX,Vanguard Total International Bond ETF,48.24,-0.06,Puddle,48.24,-0.06,53.57,"1st: MA20, 10% cash"
+2026-07-02T17:07:00-05:00,2026-07-02,ETF,ETF,97,XLC,State Street Communication Services Select Sector SPDR ETF,109.6,-0.13,Puddle,109.29,-0.41,40.76,"1st: MA20, 10% cash"
+2026-07-02T17:07:00-05:00,2026-07-02,Stock,NASDAQ100,37,SHOP,Shopify Inc. Class A subordinate voting shares,119.46,-1.78,Puddle,120.07,-1.28,61.92,"3rd: MA120, 50% cash, 5d"
+2026-07-02T17:07:00-05:00,2026-07-02,Stock,NASDAQ100,54,CMCSA,Comcast Corp,23.79,0.25,Puddle,23.41,-1.35,45.63,"1st: MA20, 10% cash"
+2026-07-02T17:07:00-05:00,2026-07-02,Stock,NASDAQ100,60,ORLY,"O'Reilly Automotive, Inc.",90.25,-2.63,Puddle,91.51,-1.27,54.09,"3rd: MA120, 50% cash, 5d"
+2026-07-02T17:07:00-05:00,2026-07-02,Stock,NASDAQ100,67,WBD,"Warner Bros. Discovery, Inc. Series A Common Stock",26.48,-1.23,Puddle,26.7,-0.41,47.79,"1st: MA20, 10% cash"
