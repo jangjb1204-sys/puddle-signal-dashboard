@@ -1,6 +1,6 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-08-19T22:50:00-05:00,2026-08-19,ETF,ETF,85,XLI,State Street Industrial Select Sector SPDR ETF,181.95,-0.88,Puddle,183.52,-0.03,69.64,"1st: MA20, 10% cash"
-2026-08-19T22:50:00-05:00,2026-08-19,Stock,"S&P500,NASDAQ100",S46/N24,KLAC,KLA Corp,187.27,-3.86,Puddle,190.93,-1.98,57.82,"3rd: MA120, 50% cash, 5d"
-2026-08-19T22:50:00-05:00,2026-08-19,Stock,"S&P500,NASDAQ100",S68/N36,ADI,Analog Devices Inc,373.26,-0.89,Puddle,372.88,-1.0,53.97,"3rd: MA120, 50% cash, 5d"
-2026-08-19T22:50:00-05:00,2026-08-19,Stock,S&P500,44,GEV,GE Vernova Inc,987.46,-1.7,Puddle,986.09,-1.84,50.83,"3rd: MA120, 50% cash, 5d"
-2026-08-19T22:50:00-05:00,2026-08-19,Stock,S&P500,45,WFC,Wells Fargo & Co,85.94,-1.67,Puddle,87.02,-0.43,57.35,"1st: MA20, 10% cash"
+2026-08-19T23:37:00-05:00,2026-08-19,ETF,ETF,85,XLI,State Street Industrial Select Sector SPDR ETF,181.95,-0.88,Puddle,183.52,-0.03,69.64,"1st: MA20, 10% cash"
+2026-08-19T23:37:00-05:00,2026-08-19,Stock,"S&P500,NASDAQ100",S46/N24,KLAC,KLA Corp,187.27,-3.86,Puddle,190.93,-1.98,57.82,"3rd: MA120, 50% cash, 5d"
+2026-08-19T23:37:00-05:00,2026-08-19,Stock,"S&P500,NASDAQ100",S68/N36,ADI,Analog Devices Inc,373.26,-0.89,Puddle,372.88,-1.0,53.97,"3rd: MA120, 50% cash, 5d"
+2026-08-19T23:37:00-05:00,2026-08-19,Stock,S&P500,44,GEV,GE Vernova Inc,987.46,-1.7,Puddle,986.09,-1.84,50.83,"3rd: MA120, 50% cash, 5d"
+2026-08-19T23:37:00-05:00,2026-08-19,Stock,S&P500,45,WFC,Wells Fargo & Co,85.94,-1.67,Puddle,87.02,-0.43,57.35,"1st: MA20, 10% cash"
