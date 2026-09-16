@@ -1,0 +1,12 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,NASDAQ100,69,PCAR,Paccar Inc,120.67,-1.46,RSI & Puddle,120.62,-1.5,22.6,"3rd: MA120, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,NASDAQ100,95,ROP,"Roper Technologies, Inc. Common Stock",378.1,-1.52,RSI & Puddle,378.1,-1.52,29.62,"2nd: MA60, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,ETF,ETF,43,XLF,State Street Financial Select Sector SPDR ETF,56.64,-0.37,Puddle,56.63,-0.39,35.32,"2nd: MA60, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,ETF,ETF,46,IVE,iShares S&P 500 Value ETF,233.15,-0.04,Puddle,233.15,-0.04,33.72,"2nd: MA60, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,"S&P500,NASDAQ100",S3/N3,MSFT,Microsoft Corp,492.52,-0.93,Puddle,492.49,-0.93,47.9,"1st: MA20, 10% cash"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,S&P500,16,V,VISA Inc.,373.53,-0.56,Puddle,373.53,-0.56,38.01,"1st: MA20, 10% cash"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,S&P500,50,C,Citigroup Inc.,135.79,-0.28,Puddle,135.6,-0.42,56.54,"2nd: MA60, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,S&P500,51,IBM,International Business Machines Corporation,240.27,-3.26,Puddle,240.27,-3.26,58.63,"3rd: MA120, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,NASDAQ100,75,FANG,"Diamondback Energy, Inc.",193.75,-8.41,Puddle,193.74,-8.41,43.13,"3rd: MA120, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,NASDAQ100,78,MSTR,Strategy Inc Common Stock Class A,126.64,-2.28,Puddle,126.65,-2.28,51.8,"3rd: MA120, 50% cash, 5d"
+2026-09-16T09:39:00-05:00,2026-09-16,Stock,S&P500,93,PGR,Progressive Corporation,219.36,-0.88,Puddle,219.36,-0.88,44.67,"1st: MA20, 10% cash"
