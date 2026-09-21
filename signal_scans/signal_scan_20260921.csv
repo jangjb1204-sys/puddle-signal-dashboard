@@ -1,0 +1,9 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,NASDAQ100,47,ADBE,Adobe Inc.,247.85,-0.43,RSI & Puddle,247.79,-0.45,26.27,"2nd: MA60, 50% cash, 5d"
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,S&P500,77,UNP,Union Pacific Corp.,271.82,-2.7,RSI & Puddle,271.82,-2.7,10.32,"3rd: MA120, 50% cash, 5d"
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,NASDAQ100,90,PAYX,Paychex Inc,115.33,-0.7,RSI & Puddle,115.33,-0.7,22.31,"2nd: MA60, 50% cash, 5d"
+2026-09-21T11:16:00-05:00,2026-09-21,ETF,ETF,71,XLE,State Street Energy Select Sector SPDR ETF,62.63,-2.6,Puddle,62.62,-2.63,43.46,"1st: MA20, 10% cash"
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,S&P500,11,BRK-B,BERKSHIRE HATHAWAY Class B,506.57,-0.63,Puddle,506.57,-0.63,53.33,"1st: MA20, 10% cash"
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,S&P500,19,XOM,ExxonMobil Holdings Corporation,158.43,-3.12,Puddle,158.45,-3.11,46.06,"1st: MA20, 10% cash"
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,S&P500,26,CVX,Chevron Corporation,204.98,-2.16,Puddle,205.06,-2.12,48.53,"1st: MA20, 10% cash"
+2026-09-21T11:16:00-05:00,2026-09-21,Stock,S&P500,41,PM,Philip Morris International Inc.,187.9,-0.38,Puddle,187.89,-0.39,51.15,"2nd: MA60, 50% cash, 5d"
