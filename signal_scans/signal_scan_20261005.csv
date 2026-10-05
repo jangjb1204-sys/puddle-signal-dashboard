@@ -1,5 +1,5 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-10-05T13:00:00-05:00,2026-10-05,Stock,S&P500,74,T,AT&T Inc.,24.05,-1.03,RSI & Puddle,24.05,-1.03,11.75,"3rd: MA120, 50% cash, 5d"
-2026-10-05T13:00:00-05:00,2026-10-05,Stock,S&P500,98,BMY,Bristol-Myers Squibb Co.,58.92,-3.65,RSI & Puddle,58.92,-3.65,27.54,"4th: MA200, RSI<=30, 100% cash, 40d"
-2026-10-05T13:00:00-05:00,2026-10-05,Stock,"S&P500,NASDAQ100",S61/N34,QCOM,Qualcomm Inc,181.92,-1.6,Puddle,181.92,-1.6,46.12,"3rd: MA120, 50% cash, 5d"
-2026-10-05T13:00:00-05:00,2026-10-05,Stock,S&P500,76,WELL,Welltower Inc.,224.17,-1.55,Puddle,224.17,-1.55,36.6,"3rd: MA120, 50% cash, 5d"
+2026-10-05T18:59:00-05:00,2026-10-05,Stock,S&P500,72,T,AT&T Inc.,24.24,-0.25,RSI & Puddle,24.05,-1.03,11.75,"3rd: MA120, 50% cash, 5d"
+2026-10-05T18:59:00-05:00,2026-10-05,Stock,S&P500,98,BMY,Bristol-Myers Squibb Co.,58.81,-3.83,RSI & Puddle,58.92,-3.65,27.54,"4th: MA200, RSI<=30, 100% cash, 40d"
+2026-10-05T18:59:00-05:00,2026-10-05,Stock,"S&P500,NASDAQ100",S61/N34,QCOM,Qualcomm Inc,180.79,-2.21,Puddle,181.92,-1.6,46.12,"3rd: MA120, 50% cash, 5d"
+2026-10-05T18:59:00-05:00,2026-10-05,Stock,S&P500,76,WELL,Welltower Inc.,224.16,-1.56,Puddle,224.17,-1.55,36.6,"3rd: MA120, 50% cash, 5d"
