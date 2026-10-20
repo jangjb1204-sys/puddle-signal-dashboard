@@ -1,0 +1,4 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-10-20T09:44:00-05:00,2026-10-20,Stock,"S&P500,NASDAQ100",S49/N26,CRWD,"CrowdStrike Holdings, Inc. Class A Common Stock",227.19,-0.4,RSI & Puddle,227.25,-0.37,29.44,"2nd: MA60, 50% cash, 5d"
+2026-10-20T09:44:00-05:00,2026-10-20,Stock,S&P500,86,UBER,"Uber Technologies, Inc.",69.5,-0.66,Puddle,69.5,-0.66,54.03,"1st: MA20, 10% cash"
+2026-10-20T09:44:00-05:00,2026-10-20,Stock,NASDAQ100,101,CPRT,Copart Inc,26.94,-2.05,Puddle,26.94,-2.07,47.23,"1st: MA20, 10% cash"
