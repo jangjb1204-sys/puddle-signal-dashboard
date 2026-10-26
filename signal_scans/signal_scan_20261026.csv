@@ -1,0 +1,8 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,NASDAQ100,58,MELI,"Mercado Libre, Inc",1643.01,-9.23,RSI & Puddle,1643.01,-9.23,25.73,"3rd: MA120, 50% cash, 5d"
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,S&P500,31,MRK,"Merck & Co., Inc.",141.4,-2.66,Puddle,141.4,-2.66,49.19,"2nd: MA60, 50% cash, 5d"
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,"S&P500,NASDAQ100",S94/N41,VRTX,Vertex Pharmaceuticals Inc,513.55,-1.98,Puddle,513.55,-1.98,54.43,"2nd: MA60, 50% cash, 5d"
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,NASDAQ100,47,ABNB,"Airbnb, Inc. Class A Common Stock",170.15,-1.08,Puddle,170.15,-1.08,64.62,"2nd: MA60, 50% cash, 5d"
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,NASDAQ100,49,ADBE,Adobe Inc.,254.99,-3.35,Puddle,254.98,-3.35,59.69,"2nd: MA60, 50% cash, 5d"
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,NASDAQ100,84,PYPL,"PayPal Holdings, Inc. Common Stock",54.88,-3.75,Puddle,54.88,-3.75,51.93,"2nd: MA60, 50% cash, 5d"
+2026-10-26T11:33:00-05:00,2026-10-26,Stock,NASDAQ100,93,ODFL,Old Dominion Freight Line,182.01,-0.38,Puddle,182.01,-0.38,56.94,"1st: MA20, 10% cash"
