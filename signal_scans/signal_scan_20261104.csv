@@ -1,0 +1,12 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,NASDAQ100,67,DDOG,"Datadog, Inc. Class A Common Stock",190.04,-13.82,RSI & Puddle,189.63,-14.01,29.99,"4th: MA200, RSI<=30, 100% cash, 40d"
+2026-11-04T10:53:00-06:00,2026-11-04,ETF,ETF,71,XLE,State Street Energy Select Sector SPDR ETF,62.92,-5.63,Puddle,62.96,-5.58,38.34,"2nd: MA60, 50% cash, 5d"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,17,XOM,ExxonMobil Holdings Corporation,168.66,-4.96,Puddle,168.64,-4.97,42.92,"1st: MA20, 10% cash"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,22,CVX,Chevron Corporation,215.93,-4.14,Puddle,215.9,-4.16,46.38,"1st: MA20, 10% cash"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,"S&P500,NASDAQ100",S59/N30,ADI,"Analog Devices, Inc.",407.5,-2.93,Puddle,407.27,-2.98,51.29,"1st: MA20, 10% cash"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,43,RTX,RTX Corporation,198.12,-2.8,Puddle,198.05,-2.83,62.94,"2nd: MA60, 50% cash, 5d"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,53,GEV,GE Vernova Inc.,819.97,-10.7,Puddle,819.94,-10.7,38.86,"1st: MA20, 10% cash"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,62,APH,Amphenol Corporation,79.0,-6.16,Puddle,78.99,-6.18,46.11,"3rd: MA120, 50% cash, 5d"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,NASDAQ100,66,AEP,"American Electric Power Company, Inc.",126.59,-2.52,Puddle,126.59,-2.52,55.31,"3rd: MA120, 50% cash, 5d"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,75,COP,ConocoPhillips,135.64,-6.07,Puddle,135.67,-6.05,42.55,"1st: MA20, 10% cash"
+2026-11-04T10:53:00-06:00,2026-11-04,Stock,S&P500,97,COF,Capital One Financial,204.71,-1.91,Puddle,204.65,-1.95,57.19,"2nd: MA60, 50% cash, 5d"
