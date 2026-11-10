@@ -1,5 +1,5 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-11-09T14:28:00-06:00,2026-11-09,Stock,S&P500,34,PM,Philip Morris International Inc.,193.08,-2.43,Puddle,193.08,-2.43,41.58,"2nd: MA60, 50% cash, 5d"
-2026-11-09T14:28:00-06:00,2026-11-09,Stock,NASDAQ100,44,PDD,PDD Holdings Inc. American Depositary Shares,80.68,-2.82,Puddle,80.68,-2.83,47.59,"2nd: MA60, 50% cash, 5d"
-2026-11-09T14:28:00-06:00,2026-11-09,Stock,S&P500,76,COP,ConocoPhillips,134.63,-1.2,Puddle,134.64,-1.2,34.53,"2nd: MA60, 50% cash, 5d"
-2026-11-09T14:28:00-06:00,2026-11-09,Stock,NASDAQ100,89,TTWO,Take-Two Interactive Software Inc,211.56,-1.54,Puddle,211.56,-1.54,55.08,"2nd: MA60, 50% cash, 5d"
+2026-11-09T21:13:00-06:00,2026-11-09,Stock,S&P500,34,PM,Philip Morris International Inc.,193.12,-2.41,Puddle,193.08,-2.43,41.58,"2nd: MA60, 50% cash, 5d"
+2026-11-09T21:13:00-06:00,2026-11-09,Stock,NASDAQ100,44,PDD,PDD Holdings Inc. American Depositary Shares,80.5,-3.05,Puddle,80.68,-2.83,47.59,"2nd: MA60, 50% cash, 5d"
+2026-11-09T21:13:00-06:00,2026-11-09,Stock,S&P500,76,COP,ConocoPhillips,134.47,-1.32,Puddle,134.64,-1.2,34.53,"2nd: MA60, 50% cash, 5d"
+2026-11-09T21:13:00-06:00,2026-11-09,Stock,NASDAQ100,89,TTWO,Take-Two Interactive Software Inc,207.4,-3.48,Puddle,211.56,-1.54,55.08,"2nd: MA60, 50% cash, 5d"
