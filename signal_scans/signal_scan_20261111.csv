@@ -1,0 +1,10 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-11-11T10:56:00-06:00,2026-11-11,ETF,ETF,39,VCIT,Vanguard Intermediate-Term Corporate Bond ETF,79.25,-0.06,Puddle,79.25,-0.05,46.07,"1st: MA20, 10% cash"
+2026-11-11T10:56:00-06:00,2026-11-11,ETF,ETF,87,LQD,iShares iBoxx Investment Grade Corporate Bond ETF,103.83,-0.05,Puddle,103.83,-0.05,44.27,"1st: MA20, 10% cash"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,"S&P500,NASDAQ100",S3/N3,MSFT,Microsoft Corp,520.51,-2.37,Puddle,520.47,-2.38,49.8,"1st: MA20, 10% cash"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,S&P500,28,MRK,"Merck & Co., Inc.",145.96,-1.41,Puddle,145.96,-1.41,48.24,"2nd: MA60, 50% cash, 5d"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,S&P500,29,UNH,UNITEDHEALTH GROUP INCORPORATED (Delaware),398.51,-1.63,Puddle,398.47,-1.64,32.08,"3rd: MA120, 50% cash, 5d"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,NASDAQ100,44,BKNG,Booking Holdings Inc. Common Stock,156.99,-1.43,Puddle,156.99,-1.43,46.6,"1st: MA20, 10% cash"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,S&P500,53,AXP,American Express Company,320.58,-0.89,Puddle,320.63,-0.87,46.68,"1st: MA20, 10% cash"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,S&P500,78,TJX,"TJX Companies, Inc. (The)",135.24,-1.23,Puddle,135.24,-1.23,34.61,"2nd: MA60, 50% cash, 5d"
+2026-11-11T10:56:00-06:00,2026-11-11,Stock,S&P500,95,BMY,Bristol-Myers Squibb Co.,61.69,-1.77,Puddle,61.69,-1.77,44.86,"1st: MA20, 10% cash"
