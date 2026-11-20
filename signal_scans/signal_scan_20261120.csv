@@ -1,0 +1,13 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,"S&P500,NASDAQ100",S4/N4,AMZN,Amazon.Com Inc,255.53,-0.72,Puddle,255.51,-0.72,56.45,"2nd: MA60, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,"S&P500,NASDAQ100",S7/N8,AVGO,Broadcom Inc. Common Stock,322.56,-6.95,Puddle,322.78,-6.89,50.13,"1st: MA20, 10% cash"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,"S&P500,NASDAQ100",S9/N10,TSLA,"Tesla, Inc. Common Stock",365.1,-2.49,Puddle,365.44,-2.4,37.53,"3rd: MA120, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,"S&P500,NASDAQ100",S39/N20,TXN,Texas Instruments Incorporated,276.05,-3.39,Puddle,276.23,-3.33,39.28,"3rd: MA120, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,"S&P500,NASDAQ100",S45/N24,CRWD,"CrowdStrike Holdings, Inc. Class A Common Stock",232.46,-4.52,Puddle,232.48,-4.51,45.06,"2nd: MA60, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,S&P500,31,GE,GE Aerospace,316.42,-0.77,Puddle,316.57,-0.72,50.44,"2nd: MA60, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,"S&P500,NASDAQ100",S96/N40,APP,Applovin Corporation Class A Common Stock,360.58,-4.87,Puddle,360.19,-4.97,72.45,"3rd: MA120, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,NASDAQ100,44,MAR,Marriott International Class A Common Stock,412.72,-0.32,Puddle,412.72,-0.32,46.89,"1st: MA20, 10% cash"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,S&P500,49,ANET,Arista Networks,174.09,-8.18,Puddle,174.3,-8.06,53.88,"3rd: MA120, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,NASDAQ100,68,MPWR,"Monolithic Power Systems, Inc.",1222.88,-5.63,Puddle,1222.4,-5.67,48.87,"2nd: MA60, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,NASDAQ100,81,PYPL,"PayPal Holdings, Inc. Common Stock",55.03,-2.38,Puddle,55.02,-2.39,35.84,"2nd: MA60, 50% cash, 5d"
+2026-11-20T09:18:00-06:00,2026-11-20,Stock,NASDAQ100,87,TTWO,Take-Two Interactive Software Inc,207.61,-0.5,Puddle,207.61,-0.5,57.39,"1st: MA20, 10% cash"
