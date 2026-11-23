@@ -1,0 +1,8 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,S&P500,18,XOM,ExxonMobil Holdings Corporation,156.9,-1.93,RSI & Puddle,156.9,-1.93,22.02,"3rd: MA120, 50% cash, 5d"
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,S&P500,35,PM,Philip Morris International Inc.,182.5,-0.86,RSI & Puddle,182.5,-0.86,20.8,"4th: MA200, RSI<=30, 100% cash, 40d"
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,NASDAQ100,58,MNST,Monster Beverage Corporation,42.43,-2.88,RSI & Puddle,42.43,-2.88,28.55,"4th: MA200, RSI<=30, 100% cash, 40d"
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,S&P500,22,KO,Coca-Cola Company,95.88,-1.14,Puddle,95.88,-1.14,55.09,"1st: MA20, 10% cash"
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,"S&P500,NASDAQ100",S50/N26,CRWD,"CrowdStrike Holdings, Inc. Class A Common Stock",208.97,-8.92,Puddle,208.97,-8.92,34.48,"3rd: MA120, 50% cash, 5d"
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,"S&P500,NASDAQ100",S59/N28,PEP,"PepsiCo, Inc.",140.21,-0.23,Puddle,140.21,-0.23,55.99,"1st: MA20, 10% cash"
+2026-11-23T17:29:00-06:00,2026-11-23,Stock,S&P500,81,PGR,Progressive Corporation,230.36,-0.45,Puddle,230.36,-0.45,51.75,"1st: MA20, 10% cash"
