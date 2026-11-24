@@ -1,0 +1,9 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,S&P500,93,MDT,Medtronic plc,96.23,-4.46,RSI & Puddle,96.21,-4.48,22.84,"1st: MA20, 10% cash"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,"S&P500,NASDAQ100",S4/N4,AMZN,Amazon.Com Inc,251.24,-1.62,Puddle,251.23,-1.63,40.46,"3rd: MA120, 50% cash, 5d"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,"S&P500,NASDAQ100",S8/N9,TSLA,"Tesla, Inc. Common Stock",381.58,-1.01,Puddle,381.46,-1.04,49.06,"1st: MA20, 10% cash"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,"S&P500,NASDAQ100",S45/N24,TXN,Texas Instruments Incorporated,261.8,-10.09,Puddle,261.74,-10.11,36.04,"3rd: MA120, 50% cash, 5d"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,NASDAQ100,44,MAR,Marriott International Class A Common Stock,413.93,-0.41,Puddle,413.93,-0.41,41.68,"1st: MA20, 10% cash"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,NASDAQ100,67,NXPI,NXP Semiconductors N.V.,241.18,-5.8,Puddle,241.01,-5.87,39.65,"3rd: MA120, 50% cash, 5d"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,NASDAQ100,70,MPWR,"Monolithic Power Systems, Inc.",1205.19,-9.65,Puddle,1204.54,-9.7,47.65,"3rd: MA120, 50% cash, 5d"
+2026-11-24T13:59:00-06:00,2026-11-24,Stock,NASDAQ100,86,FER,Ferrovial N.V. Ordinary Shares,59.17,-0.75,Puddle,59.17,-0.74,50.91,"1st: MA20, 10% cash"
