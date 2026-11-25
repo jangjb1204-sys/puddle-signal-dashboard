@@ -1,0 +1,7 @@
+scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
+2026-11-25T16:59:00-06:00,2026-11-25,ETF,ETF,63,XLV,State Street Health Care Select Sector SPDR ETF,183.68,-0.56,Puddle,183.68,-0.56,47.68,"1st: MA20, 10% cash"
+2026-11-25T16:59:00-06:00,2026-11-25,Stock,"S&P500,NASDAQ100",S8/N9,TSLA,"Tesla, Inc. Common Stock",380.14,-1.18,Puddle,380.14,-1.18,61.51,"1st: MA20, 10% cash"
+2026-11-25T16:59:00-06:00,2026-11-25,Stock,S&P500,10,LLY,Eli Lilly & Co.,1392.22,-1.09,Puddle,1392.22,-1.09,54.7,"1st: MA20, 10% cash"
+2026-11-25T16:59:00-06:00,2026-11-25,Stock,S&P500,17,JNJ,Johnson & Johnson,273.94,-0.91,Puddle,273.94,-0.91,51.68,"1st: MA20, 10% cash"
+2026-11-25T16:59:00-06:00,2026-11-25,Stock,NASDAQ100,53,MRNA,"Moderna, Inc. Common Stock",220.84,-2.88,Puddle,220.84,-2.88,42.92,"1st: MA20, 10% cash"
+2026-11-25T16:59:00-06:00,2026-11-25,Stock,S&P500,88,BMY,Bristol-Myers Squibb Co.,61.56,-0.74,Puddle,61.56,-0.74,43.81,"2nd: MA60, 50% cash, 5d"
