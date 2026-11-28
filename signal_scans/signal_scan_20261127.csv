@@ -1,7 +1,7 @@
 scan_timestamp_ct,date,asset_type,universe,rank,ticker,company_name,price,price_change_pct,signal,close,change_pct,rsi,puddle
-2026-11-27T11:53:00-06:00,2026-11-27,ETF,ETF,56,TLT,iShares 20+ Year Treasury Bond ETF,81.42,-1.0,Puddle,81.4,-1.02,46.18,"3rd: MA120, 50% cash, 5d"
-2026-11-27T11:53:00-06:00,2026-11-27,ETF,ETF,74,GOVT,iShares U.S. Treasury Bond ETF,22.27,-0.36,Puddle,22.27,-0.36,47.56,"3rd: MA120, 50% cash, 5d"
-2026-11-27T11:53:00-06:00,2026-11-27,Stock,"S&P500,NASDAQ100",S84/N36,VRTX,Vertex Pharmaceuticals Inc,532.36,-5.63,Puddle,531.81,-5.73,43.91,"1st: MA20, 10% cash"
-2026-11-27T11:53:00-06:00,2026-11-27,Stock,S&P500,67,NEE,"NextEra Energy, Inc.",84.96,-0.53,Puddle,84.96,-0.53,35.93,"1st: MA20, 10% cash"
-2026-11-27T11:53:00-06:00,2026-11-27,Stock,S&P500,76,TJX,"TJX Companies, Inc. (The)",143.33,-1.89,Puddle,143.34,-1.88,62.32,"3rd: MA120, 50% cash, 5d"
-2026-11-27T11:53:00-06:00,2026-11-27,Stock,S&P500,93,BMY,Bristol-Myers Squibb Co.,61.15,-0.67,Puddle,61.15,-0.67,45.91,"3rd: MA120, 50% cash, 5d"
+2026-11-27T19:11:00-06:00,2026-11-27,ETF,ETF,56,TLT,iShares 20+ Year Treasury Bond ETF,81.27,-1.18,Puddle,81.4,-1.02,46.18,"3rd: MA120, 50% cash, 5d"
+2026-11-27T19:11:00-06:00,2026-11-27,ETF,ETF,74,GOVT,iShares U.S. Treasury Bond ETF,22.27,-0.38,Puddle,22.27,-0.36,47.56,"3rd: MA120, 50% cash, 5d"
+2026-11-27T19:11:00-06:00,2026-11-27,Stock,"S&P500,NASDAQ100",S84/N36,VRTX,Vertex Pharmaceuticals Inc,534.57,-5.24,Puddle,531.81,-5.73,43.91,"1st: MA20, 10% cash"
+2026-11-27T19:11:00-06:00,2026-11-27,Stock,S&P500,67,NEE,"NextEra Energy, Inc.",84.95,-0.54,Puddle,84.96,-0.53,35.93,"1st: MA20, 10% cash"
+2026-11-27T19:11:00-06:00,2026-11-27,Stock,S&P500,76,TJX,"TJX Companies, Inc. (The)",143.77,-1.59,Puddle,143.34,-1.88,62.32,"3rd: MA120, 50% cash, 5d"
+2026-11-27T19:11:00-06:00,2026-11-27,Stock,S&P500,94,BMY,Bristol-Myers Squibb Co.,61.12,-0.71,Puddle,61.15,-0.67,45.91,"3rd: MA120, 50% cash, 5d"
